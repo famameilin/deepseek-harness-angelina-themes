@@ -1,18 +1,8 @@
 # DeepSeek Harness Angelina Themes
 
-> **本仓库是 fork**，自 [bilbillm/deepseek-harness-angelina-themes](https://github.com/bilbillm/deepseek-harness-angelina-themes) 分叉，为适配 DSH 核心变更而维护。
->
-> **改动一（模块重命名适配）**：客户端 store 的模块标识符由 `@deepseek-ai/dsh-client-runtime` 改为 `@deepseek-ai/dsh-client-store`（6 个文件共 8 处）。DSH 核心在 0.1.2 之后不再发布 `dsh-client-runtime`，改由 `dsh-client-store` 提供同一套 store 契约（`defineStore` 等实现逐字节相同），沿用旧标识符会让插件在浏览器端加载失败并报 `Failed to load plugins`。
->
-> **改动二（主题持久化修复）**：DSH 宿主只把内建偏好 `light`/`dark`/`system` 写进 `settings.yaml`，第三方主题 id 永远不落盘；同时宿主在设置异步到达后会覆盖内存中的偏好，插件随即把本地记录反向写成 `system`，导致**刷新/重启后主题被重置**。本 fork 改为让皮肤搭在宿主自己的明暗轴上：两份调色板合并成单层 `{light, dark}` token 覆盖表（`ctx.theme.overrideTokens`），不再注册第三方主题 id；亮暗由宿主偏好唯一决定，`localStorage` 只记录"皮肤是否开启"。设置页新增「恢复默认外观」以退回内置外观。
->
-> 上游自 2026-08-17 起未再提交，相关报告见上游 [Issue #3](https://github.com/bilbillm/deepseek-harness-angelina-themes/issues/3)，故在此 fork 内自行维护。
->
-> 安装：`dsh plugin --profile web add github:famameilin/deepseek-harness-angelina-themes`
->
-> 同步上游：`git fetch upstream && git rebase upstream/main`
-
 把 Codex 的安洁莉娜亮色、暗色主题移植到 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 的独立 `dsh-plugin`。它保留 Harness 原生的对话布局和控件行为，只把视觉层替换成安洁莉娜主题：背景图、视差、磨砂玻璃、清晰的文字层级，以及在低性能或移动环境下的优雅降级。
+
+本仓库是 [bilbillm/deepseek-harness-angelina-themes](https://github.com/bilbillm/deepseek-harness-angelina-themes) 的 fork，用于跟进 DSH 核心变更；上游自 2026-08 起未再提交，相关讨论见上游 [Issue #3](https://github.com/bilbillm/deepseek-harness-angelina-themes/issues/3)。安装命令指向本 fork，与上游的差异记录见 [CHANGELOG.md](CHANGELOG.md)。
 
 <p align="center">
   <a href="https://github.com/bilbillm/deepseek-harness-angelina-themes"><img src="https://img.shields.io/badge/dsh--plugin-Angelina-9e2f2e?style=flat-square" alt="dsh-plugin Angelina"></a>
@@ -41,9 +31,9 @@ English: [README.en.md](README.en.md)
 
 背景和人物是两张独立图层：背景不透明，人物带透明通道，指尖移动时远景反向小幅位移、人物正向位移，标题、选择器、输入框和正文保持原位，避免阅读时跟着晃动。
 
-**两套配色共用同一张人物图、同一个锚点位置**，暗色只对这张图做调色（`brightness(0.62) saturate(0.92)`）。这样切换亮/暗时人物不会跳位；先前亮暗各用一张独立人物图，实测切换瞬间人物中心会横向偏移 237px、宽度变化 68px，观感是"换主题把人换了"。
+两套配色共用同一张人物图和同一个锚点，暗色只对这张图调色（`brightness(0.62) saturate(0.92)`），因此切换亮/暗时人物纹丝不动，只有色调变化。
 
-人物层用自己的一套尺寸，不跟背景一起 `cover`：`background-size: auto 72vh` + `background-position: right 32px bottom 0`，即按视口高度定尺寸、挂在右下角；背景层仍用 `cover` 填满整屏。此前人物跟着背景一起 `cover` 缩放，在 929×861 窗口下人物本体高 888px——比窗口还高，头顶被切在画面外。现在的 72vh 让她占窗口高度的 72%，并且这个占比在不同窗口宽高比下保持不变（`vh` 定尺寸 + 角落定位，不像百分比定位那样受窗口形状影响）。
+人物层用自己的一套尺寸，不跟背景一起 `cover`：`background-size: auto 88vh` + `background-position: right 40px bottom 0`，即按视口高度定尺寸、挂在右下角；背景层仍用 `cover` + 固定锚点填满整屏。`vh` 定尺寸配合角落定位，让她占窗口高度的比例在任意窗口宽高比下都保持不变。
 
 <table>
   <tr>
@@ -66,7 +56,7 @@ English: [README.en.md](README.en.md)
 | 顶栏、侧栏、菜单、listbox、dialog | 叶节点磨砂玻璃，不给固定定位的祖先 frame 叠加 `backdrop-filter` | 菜单打开时仍保持清晰的边界和阴影 |
 | Composer、输入框、用户消息气泡 | 半透明填充 + 背景模糊 + 轻微饱和度，沿用 Harness 默认形状 | 不改变原生尺寸、键盘行为和按钮布局 |
 | 设置页 | 主题选择行、浅色/深色预览、独立持久化选择 | 卸载插件时恢复宿主主题和 `body` 属性 |
-| 视差层 | 亮暗共用一张人物图与一个锚点，暗色仅调色；人物按 `72vh` 定尺寸挂在右下角，不随背景 `cover` 放大 | `prefers-reduced-motion`、触摸、窄屏、失焦和页面隐藏时停用或复位 |
+| 视差层 | 亮暗共用一张人物图与一个锚点，暗色仅调色；人物按视口高度定尺寸挂在右下角，不随背景 `cover` 放大 | `prefers-reduced-motion`、触摸、窄屏、失焦和页面隐藏时停用或复位 |
 
 <table>
   <tr>
@@ -95,15 +85,15 @@ backdrop-filter: blur(18px) saturate(104%);
 | 模式 | 背景层 | 人物层 | 设计意图 |
 | --- | ---: | ---: | --- |
 | 安洁莉娜亮色 | `-5 / -3` | `10 / 6` | 有明显空间感，但不让内容跟着移动 |
-| 安洁莉娜暗色 | `-5 / -3` | `10 / 6` | 与亮色完全一致：人物层与锚点共用，位移参数再分叉就等于换模式时挪位置 |
+| 安洁莉娜暗色 | `-5 / -3` | `10 / 6` | 与亮色一致：共用人物层与锚点，位移参数保持一致才不会有相对错位 |
 
 每组两个数依次是 X/Y 位移系数；指针坐标会先按视口归一化到 `-1..1`，数值越大，图层位移越明显。视差容器使用 `pointer-events: none`，不会挡住任何 Harness 控件。
 
 人物层的尺寸与锚点（两套配色共用，不随模式变化）：
 
 ```css
-background-size: auto 72vh;              /* 占视口高度的 72% */
-background-position: right 32px bottom 0; /* 挂在右下角（图层盒四周各外扩 16px，故 32px 落屏为 16px） */
+background-size: auto 88vh;               /* 占视口高度的 88% */
+background-position: right 40px bottom 0; /* 挂在右下角（图层盒四周各外扩 16px，故 40px 落屏为 24px） */
 ```
 
 ## 安装

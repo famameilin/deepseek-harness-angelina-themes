@@ -90,8 +90,8 @@ describe('theme payload', () => {
     const foreground = ANGELINA_CSS.match(
       /\[data-dsh-angelina-layer='foreground'\] \{([^}]*)\}/s,
     )?.[1] ?? ''
-    expect(foreground).toContain('background-size: auto 72vh')
-    expect(foreground).toContain('background-position: right 32px bottom 0')
+    expect(foreground).toContain('background-size: auto 88vh')
+    expect(foreground).toContain('background-position: right 40px bottom 0')
     // the backdrop keeps the shared hero anchor, so the two layers stay in one composition
     expect(base).toContain('background-position: var(--dsh-angelina-hero-position)')
     // and no scheme may redefine the geometry: that is what made switching modes jump

@@ -2,6 +2,8 @@
 
 An independent `dsh-plugin` that ports the Codex Angelina light and dark themes to [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). It keeps Harness interaction and layout behavior intact while adding the artwork, restrained parallax, readable frosted glass, and a durable theme picker.
 
+This repository is a fork of [bilbillm/deepseek-harness-angelina-themes](https://github.com/bilbillm/deepseek-harness-angelina-themes) that tracks DSH core changes; upstream has been quiet since 2026-08 (see upstream [Issue #3](https://github.com/bilbillm/deepseek-harness-angelina-themes/issues/3)). Install commands below point at this fork. Differences from upstream are recorded in [CHANGELOG.md](CHANGELOG.md).
+
 <p align="center">
   <a href="https://github.com/bilbillm/deepseek-harness-angelina-themes"><img src="https://img.shields.io/badge/dsh--plugin-Angelina-9e2f2e?style=flat-square" alt="dsh-plugin Angelina"></a>
   <a href="https://github.com/bilbillm/deepseek-harness-angelina-themes/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-357f7a?style=flat-square" alt="MIT License"></a>
@@ -29,14 +31,20 @@ The light theme uses a warm rooftop scene and pale glass. The dark theme uses a 
 
 The scene is composed from a background layer and a transparent foreground layer. The distant city moves only slightly; Angelina and the letters move a little more. Titles, selectors, composers, controls, and copy stay stationary.
 
+Both palettes share one character image and one anchor; dark only regrades it (`brightness(0.62) saturate(0.92)`), so switching palette changes tone and nothing else.
+
+The character carries her own scale rather than inheriting the backdrop's `cover`: `background-size: auto 88vh` with `background-position: right 40px bottom 0`, i.e. sized against the window height and hung from the lower-right corner. The backdrop keeps `cover` and the shared anchor. Sizing in `vh` with a corner anchor holds her share of the frame at any window aspect ratio.
+
 <table>
   <tr>
-    <td width="50%"><img src="./src/assets/angelina-light-parallax-background.webp" alt="Light parallax background layer"></td>
-    <td width="50%"><img src="./src/assets/angelina-light-parallax-foreground.webp" alt="Light parallax foreground layer"></td>
+    <td width="33%"><img src="./src/assets/angelina-light-parallax-background.webp" alt="Light parallax background layer"></td>
+    <td width="33%"><img src="./src/assets/angelina-light-parallax-foreground.webp" alt="Shared parallax character layer"></td>
+    <td width="33%"><img src="./src/assets/angelina-dark-parallax-background.webp" alt="Dark parallax background layer"></td>
   </tr>
   <tr>
-    <td align="center"><b>Background layer</b><br><sub>Sky, city, rooftop, and moonlight position</sub></td>
-    <td align="center"><b>Foreground layer</b><br><sub>Angelina, letters, and foreground fragments</sub></td>
+    <td align="center"><b>Background (light)</b><br><sub>Sky, city, rooftop, and moonlight position</sub></td>
+    <td align="center"><b>Character (shared)</b><br><sub>Angelina, letters, and foreground fragments</sub></td>
+    <td align="center"><b>Background (dark)</b><br><sub>Night platform, moon, and skyline</sub></td>
   </tr>
 </table>
 
@@ -48,7 +56,7 @@ The scene is composed from a background layer and a transparent foreground layer
 | Header, sidebar, menus, listboxes, dialogs | Leaf-node frosted glass instead of filtering fixed-position ancestors | Open overlays keep their own edge and shadow |
 | Composer, inputs, user bubbles | Translucent fill, backdrop blur, and a small saturation lift | Harness shape, sizing, keyboard behavior, and button layout stay intact |
 | Settings | Dedicated Angelina picker with light/dark previews and durable browser-local selection | Unload restores the host theme and body attributes |
-| Motion | Two-layer light parallax and a lower-amplitude dark path | Reduced motion, touch, narrow viewports, blur, and hidden pages disable or reset motion |
+| Motion | Two-layer parallax with one shared character layer; dark regrades the same image | Reduced motion, touch, narrow viewports, blur, and hidden pages disable or reset motion |
 
 <table>
   <tr>
@@ -77,9 +85,16 @@ Glass is applied only to visible leaf surfaces. Sidebar/frame ancestors are left
 | Mode | Background | Foreground | Intent |
 | --- | ---: | ---: | --- |
 | Angelina light | `-5 / -3` | `10 / 6` | A clear sense of depth without moving the UI |
-| Angelina dark | `0.5 / 0.25` | — (foreground artwork disabled) | Calm, stable night-time motion |
+| Angelina dark | `-5 / -3` | `10 / 6` | Identical to light: one shared character layer and anchor cannot drift apart |
 
 Each pair is the X/Y movement coefficient after pointer coordinates are normalized to `-1..1`. The parallax layer has `pointer-events: none`, so it never blocks Harness controls. Titles, selectors, composers, controls, and copy are deliberately excluded from the transform.
+
+The character layer's size and anchor (shared by both palettes, independent of mode):
+
+```css
+background-size: auto 88vh;               /* 88% of the viewport height */
+background-position: right 40px bottom 0; /* lower-right corner (the layer box bleeds 16px past the screen) */
+```
 
 ## Install
 
@@ -88,7 +103,7 @@ Each pair is the X/Y movement coefficient after pointer coordinates are normaliz
 Use a DeepSeek Harness Web profile with Node.js 20 or newer. `lib/` is committed, so a source install does not require a user-side build:
 
 ```sh
-dsh plugin --profile web add github:bilbillm/deepseek-harness-angelina-themes
+dsh plugin --profile web add github:famameilin/deepseek-harness-angelina-themes
 ```
 
 Restart the Web profile:
