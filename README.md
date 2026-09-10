@@ -1,5 +1,13 @@
 # DeepSeek Harness Angelina Themes
 
+> **本仓库是 fork**，自 [bilbillm/deepseek-harness-angelina-themes](https://github.com/bilbillm/deepseek-harness-angelina-themes) 分叉，为适配 DSH 核心的模块重命名而维护。
+>
+> **改动**：客户端 store 的模块标识符由 `@deepseek-ai/dsh-client-runtime` 改为 `@deepseek-ai/dsh-client-store`（6 个文件共 8 处）。DSH 核心在 0.1.2 之后不再发布 `dsh-client-runtime`，改由 `dsh-client-store` 提供同一套 store 契约（`defineStore` 等实现逐字节相同），沿用旧标识符会让插件在浏览器端加载失败并报 `Failed to load plugins`。上游自 2026-08-17 起未再提交，相关报告见上游 [Issue #3](https://github.com/bilbillm/deepseek-harness-angelina-themes/issues/3)，故在此 fork 内自行维护。
+>
+> 安装：`dsh plugin --profile web add github:famameilin/deepseek-harness-angelina-themes`
+>
+> 同步上游：`git fetch upstream && git rebase upstream/main`
+
 把 Codex 的安洁莉娜亮色、暗色主题移植到 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 的独立 `dsh-plugin`。它保留 Harness 原生的对话布局和控件行为，只把视觉层替换成安洁莉娜主题：背景图、视差、磨砂玻璃、清晰的文字层级，以及在低性能或移动环境下的优雅降级。
 
 <p align="center">

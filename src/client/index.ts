@@ -1,4 +1,4 @@
-import type { BakedActions } from '@deepseek-ai/dsh-client-runtime/client'
+import type { BakedActions } from '@deepseek-ai/dsh-client-store'
 import { ANGELINA_IDS, ANGELINA_THEMES } from '../themes.ts'
 import {
   DEFAULT_SELECTION,
