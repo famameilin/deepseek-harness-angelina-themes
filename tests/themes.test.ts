@@ -37,6 +37,24 @@ describe('theme payload', () => {
     }
   })
 
+  it('paints the artwork through the slot names the running Host actually renders', () => {
+    // The published Harness builds this version of the shell as
+    // `[data-slot='main.conversation']` holding the `[data-phase]` element, and ships
+    // NO `data-ds-app-frame` / `data-ds-conversation-column` hooks at all. Selectors
+    // that only name the legacy `conversation` slot match nothing, the Host's own
+    // opaque phase background survives, and the artwork never appears.
+    expect(ANGELINA_CSS).toContain("[data-slot='main.conversation']")
+    const hero = ANGELINA_CSS.match(
+      /:is\(\[data-slot='conversation'\], \[data-slot='main\.conversation'\]\) > \[data-phase='hero'\],([\s\S]*?)\{([^}]*)\}/,
+    )?.[2] ?? ''
+    expect(hero).toContain('background-image: var(--dsh-angelina-app-scrim), var(--dsh-angelina-hero-image)')
+    // The phase must give up its opaque fill, or it covers the parallax layers beneath.
+    const phase = ANGELINA_CSS.match(
+      /:is\(\[data-slot='conversation'\], \[data-slot='main\.conversation'\]\) > \[data-phase\] \{([^}]*)\}/s,
+    )?.[1] ?? ''
+    expect(phase).toContain('background-color: transparent')
+  })
+
   it('keeps hero, settling, and active conversations on one artwork coordinate system', () => {
     expect(ANGELINA_CSS).toContain(`body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase='hero'],
 body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase='settling'],
@@ -50,7 +68,9 @@ body[data-dsh-angelina-parallax] [data-ds-conversation-column] [data-phase='acti
 }`)
     expect(ANGELINA_CSS).not.toContain('--dsh-angelina-thread-')
     expect(ANGELINA_CSS).toContain("[data-slot='root'] > :first-child")
-    expect(ANGELINA_CSS).toContain("[data-slot='conversation'] > [data-phase='hero']")
+    expect(ANGELINA_CSS).toMatch(
+      /:is\(\[data-slot='conversation'\], \[data-slot='main\.conversation'\]\) > \[data-phase='hero'\]/,
+    )
   })
 
   it('softens active artwork and gives interface copy readable theme tokens', () => {
