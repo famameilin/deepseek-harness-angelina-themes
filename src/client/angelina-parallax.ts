@@ -236,10 +236,13 @@ export class AngelinaParallaxController {
   private writeParallax(x: number, y: number, force = false): void {
     if (!force && x === this.targetX && y === this.targetY && this.frame !== 0) return
     if (this.passiveOwner || this.root === undefined || this.background === undefined || this.foreground === undefined) return
-    const foregroundX = this.mode === 'light' ? x * 10 : x * 8
-    const foregroundY = this.mode === 'light' ? y * 6 : y * 5
-    const backgroundX = this.mode === 'light' ? x * -5 : x * -4
-    const backgroundY = this.mode === 'light' ? y * -3 : y * -2.4
+    // Both schemes share one character image and one background position, so they share
+    // the movement profile too: a per-mode coefficient would offset the figure for the
+    // same pointer position, which is the shift this design removes.
+    const foregroundX = x * 10
+    const foregroundY = y * 6
+    const backgroundX = x * -5
+    const backgroundY = y * -3
     this.background.style.transform = `translate3d(${px(backgroundX)}, ${px(backgroundY)}, 0)`
     this.foreground.style.transform = `translate3d(${px(foregroundX)}, ${px(foregroundY)}, 0)`
   }

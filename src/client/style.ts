@@ -7,10 +7,11 @@ export const ANGELINA_CSS = `
 :root {
   --dsh-angelina-light-hero: ${url(ANGELINA_ASSETS.lightHero)};
   --dsh-angelina-dark-hero: ${url(ANGELINA_ASSETS.darkHero)};
-  --dsh-angelina-light-parallax-background: ${url(ANGELINA_ASSETS.lightParallaxBackground)};
-  --dsh-angelina-light-parallax-foreground: ${url(ANGELINA_ASSETS.lightParallaxForeground)};
-  --dsh-angelina-dark-parallax-background: ${url(ANGELINA_ASSETS.darkParallaxBackground)};
-  --dsh-angelina-dark-parallax-foreground: ${url(ANGELINA_ASSETS.darkParallaxForeground)};
+  --dsh-angelina-parallax-background-light: ${url(ANGELINA_ASSETS.lightParallaxBackground)};
+  --dsh-angelina-parallax-background-dark: ${url(ANGELINA_ASSETS.darkParallaxBackground)};
+  /* One character image for both schemes: switching modes must not move the figure,
+   * and a second cut-out would place it somewhere else on screen. */
+  --dsh-angelina-parallax-character: ${url(ANGELINA_ASSETS.lightParallaxForeground)};
 }
 
 body[data-dsh-angelina-skin='light'],
@@ -68,8 +69,9 @@ body[data-dsh-angelina-skin='dark'] {
 body[data-dsh-angelina-skin='light'] {
   --dsh-angelina-hero-image: var(--dsh-angelina-light-hero);
   --dsh-angelina-app-scrim: linear-gradient(90deg, rgb(235 232 227 / 92%) 0 20%, rgb(235 232 227 / 18%) 54%, rgb(235 232 227 / 4%) 100%);
-  --dsh-angelina-parallax-background-image: var(--dsh-angelina-light-parallax-background);
-  --dsh-angelina-parallax-foreground-image: var(--dsh-angelina-light-parallax-foreground);
+  --dsh-angelina-parallax-background-image: var(--dsh-angelina-parallax-background-light);
+  --dsh-angelina-parallax-foreground-image: var(--dsh-angelina-parallax-character);
+  --dsh-angelina-parallax-foreground-filter: none;
   --dsh-angelina-glass-bubble: color-mix(in srgb, var(--dsw-specific-bubble) 62%, transparent);
   --dsh-angelina-glass-bubble-border: rgba(255, 255, 255, 0.4);
   --dsh-angelina-glass-bubble-highlight: rgba(255, 255, 255, 0.5);
@@ -78,7 +80,7 @@ body[data-dsh-angelina-skin='light'] {
 
 body[data-dsh-angelina-skin='dark'] {
   --dsh-angelina-hero-image: var(--dsh-angelina-dark-hero);
-  --dsh-angelina-hero-position: 74% 42%;
+  --dsh-angelina-hero-position: 68% 42%;
   --dsh-angelina-app-scrim: linear-gradient(90deg, rgb(8 13 19 / 94%) 0 20%, rgb(8 13 19 / 30%) 54%, rgb(8 13 19 / 8%) 100%);
   --dsh-angelina-glass-input: rgba(13, 21, 29, 0.72);
   --dsh-angelina-glass-dialog: rgba(10, 17, 24, 0.78);
@@ -99,8 +101,11 @@ body[data-dsh-angelina-skin='dark'] {
   --dsh-angelina-chat-secondary: rgba(245, 243, 240, 0.84);
   --dsh-angelina-chat-muted: rgba(245, 243, 240, 0.74);
   --dsh-angelina-chat-caption: rgba(245, 243, 240, 0.68);
-  --dsh-angelina-parallax-background-image: var(--dsh-angelina-dark-parallax-background);
-  --dsh-angelina-parallax-foreground-image: var(--dsh-angelina-dark-parallax-foreground);
+  --dsh-angelina-parallax-background-image: var(--dsh-angelina-parallax-background-dark);
+  --dsh-angelina-parallax-foreground-image: var(--dsh-angelina-parallax-character);
+  /* Same image, same position as light; only the tone differs, so a mode switch
+   * cannot shift the figure. Matches the grade baked into the dark hero. */
+  --dsh-angelina-parallax-foreground-filter: brightness(0.62) saturate(0.92);
   --dsh-angelina-question-field: rgba(3, 10, 16, 0.72);
   --dsh-angelina-question-field-border: rgba(218, 228, 233, 0.24);
   --dsh-angelina-glass-bubble: color-mix(in srgb, var(--dsw-specific-bubble) 68%, transparent);
@@ -521,6 +526,7 @@ body[data-dsh-angelina-skin] [data-dsh-angelina-parallax] > [data-dsh-angelina-l
 
 body[data-dsh-angelina-skin] [data-dsh-angelina-parallax] > [data-dsh-angelina-layer='foreground'] {
   background-image: var(--dsh-angelina-parallax-foreground-image);
+  filter: var(--dsh-angelina-parallax-foreground-filter);
 }
 
 body[data-dsh-angelina-parallax] {

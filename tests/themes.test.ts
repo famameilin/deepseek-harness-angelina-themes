@@ -44,29 +44,36 @@ describe('theme payload', () => {
   })
 
   it('embeds every image locally as WebP', () => {
-    expect(Object.keys(ANGELINA_ASSETS)).toHaveLength(6)
+    expect(Object.keys(ANGELINA_ASSETS)).toHaveLength(5)
     for (const value of Object.values(ANGELINA_ASSETS)) {
       expect(value.startsWith('data:image/webp;base64,UklGR')).toBe(true)
     }
   })
 
-  it('ships a full parallax pair for both schemes', () => {
-    // A scheme with no foreground layer is a still backdrop: the layers would move,
-    // but the character could not, which is exactly the reported defect for dark.
-    for (const scheme of ['light', 'dark']) {
-      const tokens = schemeTokens(scheme)
-      expect(tokens, scheme).toContain(`--dsh-angelina-parallax-background-image: var(--dsh-angelina-${scheme}-parallax-background)`)
-      expect(tokens, scheme).toContain(`--dsh-angelina-parallax-foreground-image: var(--dsh-angelina-${scheme}-parallax-foreground)`)
-      expect(tokens, scheme).not.toContain('--dsh-angelina-parallax-foreground-image: none')
-    }
+  it('serves both schemes from one character layer at one position', () => {
+    // Two per-scheme cut-outs placed the figure differently (measured 237px apart at
+    // 929x861), so switching palette visibly moved her. Sharing the image *and* the
+    // position makes the switch a no-op for the character; only the tone differs.
     expect(Object.keys(ANGELINA_ASSETS)).toEqual([
       'lightHero', 'darkHero',
       'lightParallaxBackground', 'lightParallaxForeground',
-      'darkParallaxBackground', 'darkParallaxForeground',
+      'darkParallaxBackground',
     ])
-    for (const key of ['darkParallaxBackground', 'darkParallaxForeground']) {
-      expect(ANGELINA_ASSETS[key as keyof typeof ANGELINA_ASSETS].length).toBeGreaterThan(1000)
+    for (const scheme of ['light', 'dark']) {
+      const tokens = schemeTokens(scheme)
+      expect(tokens, scheme).toContain('--dsh-angelina-parallax-foreground-image: var(--dsh-angelina-parallax-character)')
+      expect(tokens, scheme).not.toContain('--dsh-angelina-parallax-foreground-image: none')
     }
+    // the artwork is anchored identically in both schemes, so the figure cannot slide
+    expect(ANGELINA_CSS).not.toContain('74%')
+    expect(ANGELINA_CSS).toContain('--dsh-angelina-hero-position: 68% 42%')
+    // each scheme keeps its own backdrop; that is the point of the two palettes
+    expect(schemeTokens('light')).toContain('--dsh-angelina-parallax-background-image: var(--dsh-angelina-parallax-background-light)')
+    expect(schemeTokens('dark')).toContain('--dsh-angelina-parallax-background-image: var(--dsh-angelina-parallax-background-dark)')
+    // dark re-tones the shared image instead of shipping a second one
+    expect(schemeTokens('light')).toContain('--dsh-angelina-parallax-foreground-filter: none')
+    expect(schemeTokens('dark')).toMatch(/--dsh-angelina-parallax-foreground-filter: brightness\(/)
+    expect(ANGELINA_CSS).toContain("filter: var(--dsh-angelina-parallax-foreground-filter)")
   })
 
   it('paints the artwork through the slot names the running Host actually renders', () => {
@@ -172,11 +179,12 @@ body[data-dsh-angelina-parallax] [data-ds-conversation-column] [data-phase='acti
     expect(search).toContain('backdrop-filter: none')
   })
 
-  it('contains both motion fallbacks and the two-layer light assets', () => {
+  it('contains both motion fallbacks and the per-scheme backdrop assets', () => {
     expect(ANGELINA_CSS).toContain('@media (prefers-reduced-motion: reduce)')
     expect(ANGELINA_CSS).toContain('@media (max-width: 900px)')
-    expect(ANGELINA_CSS).toContain('--dsh-angelina-light-parallax-background')
-    expect(ANGELINA_CSS).toContain('--dsh-angelina-light-parallax-foreground')
+    expect(ANGELINA_CSS).toContain('--dsh-angelina-parallax-background-light')
+    expect(ANGELINA_CSS).toContain('--dsh-angelina-parallax-background-dark')
+    expect(ANGELINA_CSS).toContain('--dsh-angelina-parallax-character')
   })
 
   it('keeps the parallax artwork visible beneath the application root', () => {

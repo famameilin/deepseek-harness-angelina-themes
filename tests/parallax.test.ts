@@ -69,19 +69,19 @@ describe('AngelinaParallaxController', () => {
     expect(document.body.style.getPropertyValue('--dsh-angelina-copy-parallax-y')).toBe('')
   })
 
-  it('keeps dark movement below the light amplitudes and ignores touch input', () => {
+  it('moves both schemes identically and ignores touch input', () => {
     const controller = create()
     controller.sync('angelina-dark')
     pointer(window.innerWidth, window.innerHeight, 'touch')
     expect(frames).toHaveLength(0)
     pointer(window.innerWidth, window.innerHeight)
     flushFrame()
-    // Both schemes drive a background and a character layer now, so dark has to move
-    // the character too — just with less travel than light.
+    // One character image and one position serve both schemes, so the amplitudes must
+    // match: a per-mode profile would offset the figure for the same pointer position.
     expect(document.querySelector('[data-dsh-angelina-layer="background"]')?.getAttribute('style'))
-      .toContain('translate3d(-4px, -2.4px, 0)')
+      .toContain('translate3d(-5px, -3px, 0)')
     expect(document.querySelector('[data-dsh-angelina-layer="foreground"]')?.getAttribute('style'))
-      .toContain('translate3d(8px, 5px, 0)')
+      .toContain('translate3d(10px, 6px, 0)')
     expect(document.body.style.getPropertyValue('--dsh-angelina-copy-parallax-x')).toBe('')
   })
 
@@ -112,11 +112,11 @@ describe('AngelinaParallaxController', () => {
     pointer(window.innerWidth, window.innerHeight)
     flushFrame()
     expect(document.querySelector('[data-dsh-angelina-layer="foreground"]')?.getAttribute('style'))
-      .toContain('translate3d(8px, 5px, 0)')
+      .toContain('translate3d(10px, 6px, 0)')
     pointer(0, 0)
     flushFrame()
     expect(document.querySelector('[data-dsh-angelina-layer="background"]')?.getAttribute('style'))
-      .toContain('translate3d(4px, 2.4px, 0)')
+      .toContain('translate3d(5px, 3px, 0)')
   })
 
   it('becomes passive when the fork already owns the layers', () => {
