@@ -76,6 +76,32 @@ describe('theme payload', () => {
     expect(ANGELINA_CSS).toContain("filter: var(--dsh-angelina-parallax-foreground-filter)")
   })
 
+  it('sizes the character against the window instead of scaling her with the backdrop', () => {
+    // She shares the backdrop's `cover`, she inherits the artwork's full height: at 929x861
+    // that made the figure 888px tall — taller than the window, head clipped off-screen.
+    // A window-height size plus a corner anchor keeps her share of the frame at any aspect
+    // ratio; a slack percentage would drift with the window shape because the layer box
+    // carries a 16px bleed on every side.
+    const base = ANGELINA_CSS.match(
+      /\[data-dsh-angelina-parallax\] > \[data-dsh-angelina-layer\] \{([^}]*)\}/s,
+    )?.[1] ?? ''
+    expect(base).toContain('background-size: cover')
+
+    const foreground = ANGELINA_CSS.match(
+      /\[data-dsh-angelina-layer='foreground'\] \{([^}]*)\}/s,
+    )?.[1] ?? ''
+    expect(foreground).toContain('background-size: auto 72vh')
+    expect(foreground).toContain('background-position: right 32px bottom 0')
+    // the backdrop keeps the shared hero anchor, so the two layers stay in one composition
+    expect(base).toContain('background-position: var(--dsh-angelina-hero-position)')
+    // and no scheme may redefine the geometry: that is what made switching modes jump
+    for (const scheme of ['light', 'dark']) {
+      const tokens = schemeTokens(scheme)
+      expect(tokens, scheme).not.toContain('background-size')
+      expect(tokens, scheme).not.toContain('background-position')
+    }
+  })
+
   it('paints the artwork through the slot names the running Host actually renders', () => {
     // The published Harness builds this version of the shell as
     // `[data-slot='main.conversation']` holding the `[data-phase]` element, and ships

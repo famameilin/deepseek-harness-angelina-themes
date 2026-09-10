@@ -43,6 +43,8 @@ English: [README.en.md](README.en.md)
 
 **两套配色共用同一张人物图、同一个锚点位置**，暗色只对这张图做调色（`brightness(0.62) saturate(0.92)`）。这样切换亮/暗时人物不会跳位；先前亮暗各用一张独立人物图，实测切换瞬间人物中心会横向偏移 237px、宽度变化 68px，观感是"换主题把人换了"。
 
+人物层用自己的一套尺寸，不跟背景一起 `cover`：`background-size: auto 72vh` + `background-position: right 32px bottom 0`，即按视口高度定尺寸、挂在右下角；背景层仍用 `cover` 填满整屏。此前人物跟着背景一起 `cover` 缩放，在 929×861 窗口下人物本体高 888px——比窗口还高，头顶被切在画面外。现在的 72vh 让她占窗口高度的 72%，并且这个占比在不同窗口宽高比下保持不变（`vh` 定尺寸 + 角落定位，不像百分比定位那样受窗口形状影响）。
+
 <table>
   <tr>
     <td width="33%"><img src="./src/assets/angelina-light-parallax-background.webp" alt="亮色视差背景层"></td>
@@ -64,7 +66,7 @@ English: [README.en.md](README.en.md)
 | 顶栏、侧栏、菜单、listbox、dialog | 叶节点磨砂玻璃，不给固定定位的祖先 frame 叠加 `backdrop-filter` | 菜单打开时仍保持清晰的边界和阴影 |
 | Composer、输入框、用户消息气泡 | 半透明填充 + 背景模糊 + 轻微饱和度，沿用 Harness 默认形状 | 不改变原生尺寸、键盘行为和按钮布局 |
 | 设置页 | 主题选择行、浅色/深色预览、独立持久化选择 | 卸载插件时恢复宿主主题和 `body` 属性 |
-| 视差层 | 亮暗共用一张人物图与一个锚点，暗色仅调色 | `prefers-reduced-motion`、触摸、窄屏、失焦和页面隐藏时停用或复位 |
+| 视差层 | 亮暗共用一张人物图与一个锚点，暗色仅调色；人物按 `72vh` 定尺寸挂在右下角，不随背景 `cover` 放大 | `prefers-reduced-motion`、触摸、窄屏、失焦和页面隐藏时停用或复位 |
 
 <table>
   <tr>
@@ -96,6 +98,13 @@ backdrop-filter: blur(18px) saturate(104%);
 | 安洁莉娜暗色 | `-5 / -3` | `10 / 6` | 与亮色完全一致：人物层与锚点共用，位移参数再分叉就等于换模式时挪位置 |
 
 每组两个数依次是 X/Y 位移系数；指针坐标会先按视口归一化到 `-1..1`，数值越大，图层位移越明显。视差容器使用 `pointer-events: none`，不会挡住任何 Harness 控件。
+
+人物层的尺寸与锚点（两套配色共用，不随模式变化）：
+
+```css
+background-size: auto 72vh;              /* 占视口高度的 72% */
+background-position: right 32px bottom 0; /* 挂在右下角（图层盒四周各外扩 16px，故 32px 落屏为 16px） */
+```
 
 ## 安装
 
