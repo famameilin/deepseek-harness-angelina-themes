@@ -1,8 +1,12 @@
 # DeepSeek Harness Angelina Themes
 
-> **本仓库是 fork**，自 [bilbillm/deepseek-harness-angelina-themes](https://github.com/bilbillm/deepseek-harness-angelina-themes) 分叉，为适配 DSH 核心的模块重命名而维护。
+> **本仓库是 fork**，自 [bilbillm/deepseek-harness-angelina-themes](https://github.com/bilbillm/deepseek-harness-angelina-themes) 分叉，为适配 DSH 核心变更而维护。
 >
-> **改动**：客户端 store 的模块标识符由 `@deepseek-ai/dsh-client-runtime` 改为 `@deepseek-ai/dsh-client-store`（6 个文件共 8 处）。DSH 核心在 0.1.2 之后不再发布 `dsh-client-runtime`，改由 `dsh-client-store` 提供同一套 store 契约（`defineStore` 等实现逐字节相同），沿用旧标识符会让插件在浏览器端加载失败并报 `Failed to load plugins`。上游自 2026-08-17 起未再提交，相关报告见上游 [Issue #3](https://github.com/bilbillm/deepseek-harness-angelina-themes/issues/3)，故在此 fork 内自行维护。
+> **改动一（模块重命名适配）**：客户端 store 的模块标识符由 `@deepseek-ai/dsh-client-runtime` 改为 `@deepseek-ai/dsh-client-store`（6 个文件共 8 处）。DSH 核心在 0.1.2 之后不再发布 `dsh-client-runtime`，改由 `dsh-client-store` 提供同一套 store 契约（`defineStore` 等实现逐字节相同），沿用旧标识符会让插件在浏览器端加载失败并报 `Failed to load plugins`。
+>
+> **改动二（主题持久化修复）**：DSH 宿主只把内建偏好 `light`/`dark`/`system` 写进 `settings.yaml`，第三方主题 id 永远不落盘；同时宿主在设置异步到达后会覆盖内存中的偏好，插件随即把本地记录反向写成 `system`，导致**刷新/重启后主题被重置**。本 fork 改为让皮肤搭在宿主自己的明暗轴上：两份调色板合并成单层 `{light, dark}` token 覆盖表（`ctx.theme.overrideTokens`），不再注册第三方主题 id；亮暗由宿主偏好唯一决定，`localStorage` 只记录"皮肤是否开启"。设置页新增「恢复默认外观」以退回内置外观。
+>
+> 上游自 2026-08-17 起未再提交，相关报告见上游 [Issue #3](https://github.com/bilbillm/deepseek-harness-angelina-themes/issues/3)，故在此 fork 内自行维护。
 >
 > 安装：`dsh plugin --profile web add github:famameilin/deepseek-harness-angelina-themes`
 >
@@ -96,7 +100,7 @@ backdrop-filter: blur(18px) saturate(104%);
 需要 DeepSeek Harness Web profile 和 Node.js 20+。仓库已经提交 `lib/` 构建产物，用户安装时不需要在本机编译插件。
 
 ```sh
-dsh plugin --profile web add github:bilbillm/deepseek-harness-angelina-themes
+dsh plugin --profile web add github:famameilin/deepseek-harness-angelina-themes
 ```
 
 重启 Web profile：

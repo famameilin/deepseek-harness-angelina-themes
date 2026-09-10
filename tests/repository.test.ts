@@ -13,7 +13,7 @@ describe('installable repository contract', () => {
   })
 
   it('documents GitHub install and exact removal commands', () => {
-    expect(readme).toContain('dsh plugin --profile web add github:bilbillm/deepseek-harness-angelina-themes')
+    expect(readme).toContain('dsh plugin --profile web add github:famameilin/deepseek-harness-angelina-themes')
     expect(readme).toContain('dsh plugin --profile web remove dsh-angelina-themes')
   })
 })
