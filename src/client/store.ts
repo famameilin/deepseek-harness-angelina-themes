@@ -12,17 +12,17 @@ export type PickerStoreActions = {
 export function createPickerStore(): EngineStoreHandle<PickerState, PickerStoreActions> {
   return defineStore({
     init: (): PickerState => ({
-      preference: 'system',
-      activeId: 'light',
-      themes: [],
+      preference: 'light',
+      scheme: 'light',
+      enabled: false,
       revision: -1,
     }),
     actions: {
       sync: (draft, state) => {
         if (state.revision <= draft.revision) return
         draft.preference = state.preference
-        draft.activeId = state.activeId
-        draft.themes = state.themes
+        draft.scheme = state.scheme
+        draft.enabled = state.enabled
         draft.revision = state.revision
       },
     },

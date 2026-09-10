@@ -1,7 +1,8 @@
-import type { ThemeDefinition } from '../themes.ts'
+import type { AngelinaScheme, ThemeTokenOverride } from '../themes.ts'
 
 export interface ThemeSnapshot {
   preference: string
+  fontSize?: number
   active: HostThemeDefinition
   themes: readonly HostThemeDefinition[]
   revision: number
@@ -9,14 +10,16 @@ export interface ThemeSnapshot {
 
 export interface HostThemeDefinition {
   id: string
-  colorScheme: 'light' | 'dark'
+  colorScheme: AngelinaScheme
   tokens: Readonly<Record<string, string>>
 }
 
 export interface ThemeService {
   getTheme(): ThemeSnapshot
-  register(definition: ThemeDefinition): () => void
+  register(definition: { id: string; colorScheme: AngelinaScheme; tokens: Readonly<Record<string, string>> }): () => void
   setTheme(id: string): void
+  /** Stack a token layer over whichever Host theme is active; returns its remover. */
+  overrideTokens(source: string, tokens: Record<string, ThemeTokenOverride>): () => void
 }
 
 export interface ClientContext {
@@ -36,8 +39,11 @@ export interface ClientContext {
 }
 
 export interface PickerState {
+  /** Host preference the skin rides on (`light`/`dark`/`system`), persisted by the Host. */
   preference: string
-  activeId: string
-  themes: readonly { id: string; colorScheme: 'light' | 'dark' }[]
+  /** Color scheme the Host currently resolves that preference to. */
+  scheme: AngelinaScheme
+  /** Whether the Angelina token layer is installed. */
+  enabled: boolean
   revision: number
 }

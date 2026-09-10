@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { ANGELINA_ASSETS } from '../src/client/assets.generated.ts'
 import { ANGELINA_CSS } from '../src/client/style.ts'
-import { ANGELINA_THEMES } from '../src/themes.ts'
+import { ANGELINA_THEMES, ANGELINA_TOKEN_OVERRIDES, buildTokenOverrides } from '../src/themes.ts'
 
 describe('theme payload', () => {
   it('ships two complete 114-token definitions', () => {
@@ -17,6 +17,19 @@ describe('theme payload', () => {
     }
   })
 
+  it('collapses both palettes into one {light, dark} token-override layer', () => {
+    const overrides = buildTokenOverrides()
+    const light = ANGELINA_THEMES.find(theme => theme.colorScheme === 'light')!.tokens
+    const dark = ANGELINA_THEMES.find(theme => theme.colorScheme === 'dark')!.tokens
+    expect(Object.keys(overrides)).toHaveLength(114)
+    for (const [name, pair] of Object.entries(overrides)) {
+      expect(pair.light, name).toBe(light[name as keyof typeof light])
+      expect(pair.dark, name).toBe(dark[name as keyof typeof dark])
+    }
+    expect(overrides['--dsw-alias-bg-base']).toEqual({ light: '#ebe8e3', dark: '#080d13' })
+    expect(ANGELINA_TOKEN_OVERRIDES).toEqual(overrides)
+  })
+
   it('embeds every image locally as WebP', () => {
     expect(Object.keys(ANGELINA_ASSETS)).toHaveLength(4)
     for (const value of Object.values(ANGELINA_ASSETS)) {
@@ -25,9 +38,9 @@ describe('theme payload', () => {
   })
 
   it('keeps hero, settling, and active conversations on one artwork coordinate system', () => {
-    expect(ANGELINA_CSS).toContain(`body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase='hero'],
-body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase='settling'],
-body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase='active'] {
+    expect(ANGELINA_CSS).toContain(`body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase='hero'],
+body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase='settling'],
+body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase='active'] {
   background-image: var(--dsh-angelina-app-scrim), var(--dsh-angelina-hero-image);
 }`)
     expect(ANGELINA_CSS).toContain(`body[data-dsh-angelina-parallax] [data-ds-conversation-column] [data-phase='hero'],
@@ -60,10 +73,10 @@ body[data-dsh-angelina-parallax] [data-ds-conversation-column] [data-phase='acti
     expect(ANGELINA_CSS).toContain("[role='menu']")
     expect(ANGELINA_CSS).toContain("[role='listbox']")
     expect(ANGELINA_CSS).toContain("[role='dialog']")
-    const composer = ANGELINA_CSS.match(/body\[data-ds-theme\^='angelina-'\] \[data-composer-card\] \{([^}]*)\}/s)?.[1] ?? ''
+    const composer = ANGELINA_CSS.match(/body\[data-dsh-angelina-skin\] \[data-composer-card\] \{([^}]*)\}/s)?.[1] ?? ''
     expect(composer).not.toContain('border-radius: 6px')
     expect(composer).not.toContain('inset 3px 0 0 var(--dsh-angelina-glass-accent)')
-    expect(ANGELINA_CSS).not.toMatch(/body\[data-ds-theme\^='angelina-'\] \[data-composer-card\]::after/)
+    expect(ANGELINA_CSS).not.toMatch(/body\[data-dsh-angelina-skin\] \[data-composer-card\]::after/)
     expect(ANGELINA_CSS).toMatch(/\[role='menu'\] section\[role='group'\] > div\[id\] \{\s*background: transparent;\s*\}/s)
     expect(ANGELINA_CSS).toContain(`[data-composer-card] textarea {
   color: transparent;

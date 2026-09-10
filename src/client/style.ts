@@ -11,8 +11,8 @@ export const ANGELINA_CSS = `
   --dsh-angelina-light-parallax-foreground: ${url(ANGELINA_ASSETS.lightParallaxForeground)};
 }
 
-body[data-ds-theme='angelina-light'],
-body[data-ds-theme='angelina-dark'] {
+body[data-dsh-angelina-skin='light'],
+body[data-dsh-angelina-skin='dark'] {
   --dsh-angelina-hero-image: none;
   --dsh-angelina-hero-position: 68% 42%;
   --dsh-angelina-app-scrim: transparent;
@@ -63,7 +63,7 @@ body[data-ds-theme='angelina-dark'] {
   background-attachment: fixed;
 }
 
-body[data-ds-theme='angelina-light'] {
+body[data-dsh-angelina-skin='light'] {
   --dsh-angelina-hero-image: var(--dsh-angelina-light-hero);
   --dsh-angelina-app-scrim: linear-gradient(90deg, rgb(235 232 227 / 92%) 0 20%, rgb(235 232 227 / 18%) 54%, rgb(235 232 227 / 4%) 100%);
   --dsh-angelina-parallax-background-image: var(--dsh-angelina-light-parallax-background);
@@ -74,7 +74,7 @@ body[data-ds-theme='angelina-light'] {
   --dsh-angelina-glass-bubble-shadow: 0 8px 20px rgba(88, 45, 42, 0.16);
 }
 
-body[data-ds-theme='angelina-dark'] {
+body[data-dsh-angelina-skin='dark'] {
   --dsh-angelina-hero-image: var(--dsh-angelina-dark-hero);
   --dsh-angelina-hero-position: 74% 42%;
   --dsh-angelina-app-scrim: linear-gradient(90deg, rgb(8 13 19 / 94%) 0 20%, rgb(8 13 19 / 30%) 54%, rgb(8 13 19 / 8%) 100%);
@@ -107,33 +107,33 @@ body[data-ds-theme='angelina-dark'] {
   --dsh-angelina-glass-bubble-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
 }
 
-body[data-ds-theme^='angelina-'] [data-ds-app-frame] {
+body[data-dsh-angelina-skin] [data-ds-app-frame] {
   background: var(--dsh-angelina-app-scrim), var(--dsh-angelina-hero-image) var(--dsh-angelina-hero-position) / cover fixed;
 }
 
-body[data-ds-theme^='angelina-'] [data-ds-conversation-column] {
+body[data-dsh-angelina-skin] [data-ds-conversation-column] {
   background: transparent;
 }
 
-body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase] {
+body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase] {
   background-color: transparent;
   background-repeat: no-repeat;
   background-position: var(--dsh-angelina-hero-position);
   background-size: cover;
 }
 
-body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase='hero'],
-body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase='settling'],
-body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase='active'] {
+body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase='hero'],
+body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase='settling'],
+body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase='active'] {
   background-image: var(--dsh-angelina-app-scrim), var(--dsh-angelina-hero-image);
 }
 
-body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase='hero'] svg[class*='heroGlow'] {
+body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase='hero'] svg[class*='heroGlow'] {
   opacity: 0;
 }
 
 /* A shallow backdrop blur softens the artwork without filtering descendants. */
-body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase='active'] [data-conversation-scroll] {
+body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase='active'] [data-conversation-scroll] {
   background-color: var(--dsh-angelina-conversation-glass);
   -webkit-backdrop-filter: var(--dsh-angelina-conversation-filter);
   backdrop-filter: var(--dsh-angelina-conversation-filter);
@@ -144,7 +144,7 @@ body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase='acti
   --dsw-alias-label-primary-dimmed: var(--dsh-angelina-chat-muted);
 }
 
-body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase='active'] [data-slot='conversation.session.header'] > header {
+body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase='active'] [data-slot='conversation.session.header'] > header {
   background-color: var(--dsh-angelina-conversation-glass);
   border-bottom-color: var(--dsh-angelina-glass-header-border);
   box-shadow: inset 0 1px 0 var(--dsh-angelina-glass-header-highlight), 0 8px 22px rgba(20, 25, 30, 0.12);
@@ -157,35 +157,35 @@ body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase='acti
   --dsw-alias-border-l2: var(--dsh-angelina-glass-header-border);
 }
 
-body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase='active'] [data-composer-seat] {
+body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase='active'] [data-composer-seat] {
   background: linear-gradient(180deg, color-mix(in srgb, var(--dsw-alias-bg-base) 0%, transparent) 0, color-mix(in srgb, var(--dsw-alias-bg-base) 88%, transparent) 36px);
 }
 
 /* Published rc.6 exposes stable slot wrappers but predates the data-ds frame
  * hooks. Keep its opaque shell and conversation phase on the same artwork
  * coordinate system as current Harness builds. */
-body[data-ds-theme^='angelina-'] [data-slot='root'] > :first-child {
+body[data-dsh-angelina-skin] [data-slot='root'] > :first-child {
   background: var(--dsh-angelina-app-scrim), var(--dsh-angelina-hero-image) var(--dsh-angelina-hero-position) / cover fixed;
 }
 
-body[data-ds-theme^='angelina-'] [data-slot='conversation'] > [data-phase] {
+body[data-dsh-angelina-skin] [data-slot='conversation'] > [data-phase] {
   background-color: transparent;
   background-repeat: no-repeat;
   background-position: var(--dsh-angelina-hero-position);
   background-size: cover;
 }
 
-body[data-ds-theme^='angelina-'] [data-slot='conversation'] > [data-phase='hero'],
-body[data-ds-theme^='angelina-'] [data-slot='conversation'] > [data-phase='settling'],
-body[data-ds-theme^='angelina-'] [data-slot='conversation'] > [data-phase='active'] {
+body[data-dsh-angelina-skin] [data-slot='conversation'] > [data-phase='hero'],
+body[data-dsh-angelina-skin] [data-slot='conversation'] > [data-phase='settling'],
+body[data-dsh-angelina-skin] [data-slot='conversation'] > [data-phase='active'] {
   background-image: var(--dsh-angelina-app-scrim), var(--dsh-angelina-hero-image);
 }
 
-body[data-ds-theme^='angelina-'] [data-slot='conversation'] > [data-phase='hero'] svg[class*='heroGlow'] {
+body[data-dsh-angelina-skin] [data-slot='conversation'] > [data-phase='hero'] svg[class*='heroGlow'] {
   opacity: 0;
 }
 
-body[data-ds-theme^='angelina-'] [data-slot='conversation'] > [data-phase='active'] [data-conversation-scroll] {
+body[data-dsh-angelina-skin] [data-slot='conversation'] > [data-phase='active'] [data-conversation-scroll] {
   background-color: var(--dsh-angelina-conversation-glass);
   -webkit-backdrop-filter: var(--dsh-angelina-conversation-filter);
   backdrop-filter: var(--dsh-angelina-conversation-filter);
@@ -196,7 +196,7 @@ body[data-ds-theme^='angelina-'] [data-slot='conversation'] > [data-phase='activ
   --dsw-alias-label-primary-dimmed: var(--dsh-angelina-chat-muted);
 }
 
-body[data-ds-theme^='angelina-'] [data-slot='conversation'] > [data-phase='active'] [data-slot='conversation.session.header'] > header {
+body[data-dsh-angelina-skin] [data-slot='conversation'] > [data-phase='active'] [data-slot='conversation.session.header'] > header {
   background-color: var(--dsh-angelina-conversation-glass);
   border-bottom-color: var(--dsh-angelina-glass-header-border);
   box-shadow: inset 0 1px 0 var(--dsh-angelina-glass-header-highlight), 0 8px 22px rgba(20, 25, 30, 0.12);
@@ -209,7 +209,7 @@ body[data-ds-theme^='angelina-'] [data-slot='conversation'] > [data-phase='activ
   --dsw-alias-border-l2: var(--dsh-angelina-glass-header-border);
 }
 
-body[data-ds-theme^='angelina-'] [data-slot='conversation'] > [data-phase='active'] [data-composer-seat] {
+body[data-dsh-angelina-skin] [data-slot='conversation'] > [data-phase='active'] [data-composer-seat] {
   background: linear-gradient(180deg, color-mix(in srgb, var(--dsw-alias-bg-base) 0%, transparent) 0, color-mix(in srgb, var(--dsw-alias-bg-base) 88%, transparent) 36px);
 }
 
@@ -218,7 +218,7 @@ body[data-ds-theme^='angelina-'] [data-slot='conversation'] > [data-phase='activ
  * data-pending-steering, data-time-hover-root); the bubble itself has no
  * stable attribute, so it is addressed by its fixed position as the last
  * child div of the row's first child div (image gallery + bubble stack). */
-body[data-ds-theme^='angelina-'] :is(
+body[data-dsh-angelina-skin] :is(
   [data-chat-flow-kind='user'] [data-time-hover-root],
   [data-chat-flow-kind='steering'] [data-time-hover-root],
   [data-pending-steering]
@@ -232,7 +232,7 @@ body[data-ds-theme^='angelina-'] :is(
 
 /* Glass belongs on leaf surfaces. Ancestor filters break fixed dialogs.
  * Floating cards share the settings dialog's density and depth. */
-body[data-ds-theme^='angelina-'] :where(
+body[data-dsh-angelina-skin] :where(
   [role='menu'],
   [role='listbox'],
   [data-radix-popper-content-wrapper] > *
@@ -253,11 +253,11 @@ body[data-ds-theme^='angelina-'] :where(
 /* ModelSelect keeps its group heading on the menu token. That token is a
  * solid light surface in the host theme, so make the heading transparent and
  * let the menu's smoked-glass layer remain continuous behind it. */
-body[data-ds-theme^='angelina-'] [role='menu'] section[role='group'] > div[id] {
+body[data-dsh-angelina-skin] [role='menu'] section[role='group'] > div[id] {
   background: transparent;
 }
 
-body[data-ds-theme^='angelina-'] :where(
+body[data-dsh-angelina-skin] :where(
   [role='dialog'],
   [data-testid='todo-panel'],
   [data-question-key] > section
@@ -289,7 +289,7 @@ body[data-ds-theme^='angelina-'] :where(
   --dsw-alias-label-dimmed: var(--dsh-angelina-glass-muted);
 }
 
-body[data-ds-theme^='angelina-'] [data-composer-card] {
+body[data-dsh-angelina-skin] [data-composer-card] {
   background-color: var(--dsh-angelina-glass-input);
   border: 1px solid var(--dsh-angelina-glass-composer-border);
   color: var(--dsh-angelina-glass-text);
@@ -305,7 +305,7 @@ body[data-ds-theme^='angelina-'] [data-composer-card] {
   --dsw-alias-interactive-bg-hover-solid: rgba(245, 243, 240, 0.14);
 }
 
-body[data-ds-theme^='angelina-'] :where(
+body[data-dsh-angelina-skin] :where(
   input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
   textarea,
   select,
@@ -322,7 +322,7 @@ body[data-ds-theme^='angelina-'] :where(
 
 /* WorkspaceBrowser owns the search capsule geometry. The broad glass-input
  * rule above must not paint a second rectangle inside that native control. */
-body[data-ds-theme^='angelina-'] :is(
+body[data-dsh-angelina-skin] :is(
   input[placeholder='搜索会话…'],
   input[placeholder='Search sessions...']
 ) {
@@ -337,7 +337,7 @@ body[data-ds-theme^='angelina-'] :is(
   backdrop-filter: none;
 }
 
-body[data-ds-theme^='angelina-'] :is(
+body[data-dsh-angelina-skin] :is(
   input[placeholder='搜索会话…'],
   input[placeholder='Search sessions...']
 )::placeholder {
@@ -348,8 +348,8 @@ body[data-ds-theme^='angelina-'] :is(
 /* The question takeover is a dark glass surface in both Angelina variants.
  * Give its copy a dedicated contrast scale, then let the custom-answer row
  * own the glass while its native input remains a clear writing plane. */
-body[data-ds-theme^='angelina-'] [data-question-key],
-body[data-ds-theme^='angelina-'] [data-question-key] > section {
+body[data-dsh-angelina-skin] [data-question-key],
+body[data-dsh-angelina-skin] [data-question-key] > section {
   --dsw-alias-label-primary: var(--dsh-angelina-question-text);
   --dsw-alias-label-secondary: var(--dsh-angelina-question-secondary);
   --dsw-alias-label-tertiary: var(--dsh-angelina-question-secondary);
@@ -357,16 +357,16 @@ body[data-ds-theme^='angelina-'] [data-question-key] > section {
   --dsw-alias-label-dimmed: var(--dsh-angelina-question-caption);
 }
 
-body[data-ds-theme^='angelina-'] [data-question-key] :is([role='radio'], [role='checkbox']) {
+body[data-dsh-angelina-skin] [data-question-key] :is([role='radio'], [role='checkbox']) {
   color: var(--dsh-angelina-question-text);
 }
 
-body[data-ds-theme^='angelina-'] [data-question-key] [role='radio'] > :first-child {
+body[data-dsh-angelina-skin] [data-question-key] [role='radio'] > :first-child {
   background: rgba(255, 255, 255, 0.18);
   color: var(--dsh-angelina-question-text);
 }
 
-body[data-ds-theme^='angelina-'] [data-question-key] :has(> input[type='text']) {
+body[data-dsh-angelina-skin] [data-question-key] :has(> input[type='text']) {
   background: var(--dsh-angelina-question-field);
   border: 1px solid var(--dsh-angelina-question-field-border);
   border-radius: 12px;
@@ -375,12 +375,12 @@ body[data-ds-theme^='angelina-'] [data-question-key] :has(> input[type='text']) 
   backdrop-filter: blur(10px) saturate(102%);
 }
 
-body[data-ds-theme^='angelina-'] [data-question-key] :has(> input[type='text']:focus) {
+body[data-dsh-angelina-skin] [data-question-key] :has(> input[type='text']:focus) {
   border-color: color-mix(in srgb, var(--dsh-angelina-glass-caret) 72%, white);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--dsh-angelina-glass-caret) 36%, transparent), inset 0 1px 0 var(--dsh-angelina-question-field-highlight);
 }
 
-body[data-ds-theme^='angelina-'] [data-question-key] input[type='text'] {
+body[data-dsh-angelina-skin] [data-question-key] input[type='text'] {
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
@@ -393,12 +393,12 @@ body[data-ds-theme^='angelina-'] [data-question-key] input[type='text'] {
   backdrop-filter: none;
 }
 
-body[data-ds-theme^='angelina-'] [data-question-key] input[type='text']::placeholder {
+body[data-dsh-angelina-skin] [data-question-key] input[type='text']::placeholder {
   color: var(--dsh-angelina-question-caption);
   opacity: 1;
 }
 
-body[data-ds-theme^='angelina-'] [data-question-key] textarea {
+body[data-dsh-angelina-skin] [data-question-key] textarea {
   background: var(--dsh-angelina-question-field);
   border: 1px solid var(--dsh-angelina-question-field-border);
   border-radius: 12px;
@@ -409,7 +409,7 @@ body[data-ds-theme^='angelina-'] [data-question-key] textarea {
   backdrop-filter: blur(10px) saturate(102%);
 }
 
-body[data-ds-theme^='angelina-'] [data-question-key] textarea::placeholder {
+body[data-dsh-angelina-skin] [data-question-key] textarea::placeholder {
   color: var(--dsh-angelina-question-caption);
   opacity: 1;
 }
@@ -417,7 +417,7 @@ body[data-ds-theme^='angelina-'] [data-question-key] textarea::placeholder {
 /* PopupSelectView has no semantic role on its outer card, while its inner
  * listbox does. Bind the card by its direct search field so the module's light
  * menu token cannot leave a pale frame around the smoked-glass list. */
-body[data-ds-theme^='angelina-'] [data-composer-card] :has(
+body[data-dsh-angelina-skin] [data-composer-card] :has(
   > input[aria-label='筛选选项'],
   > input[aria-label='Filter options']
 ) {
@@ -433,7 +433,7 @@ body[data-ds-theme^='angelina-'] [data-composer-card] :has(
   --dsw-alias-interactive-bg-hover: var(--dsh-angelina-glass-menu-hover);
 }
 
-body[data-ds-theme^='angelina-'] [data-composer-card] :has(
+body[data-dsh-angelina-skin] [data-composer-card] :has(
   > input[aria-label='筛选选项'],
   > input[aria-label='Filter options']
 ) > [role='listbox'] {
@@ -446,7 +446,7 @@ body[data-ds-theme^='angelina-'] [data-composer-card] :has(
 
 /* The search module intentionally starts transparent. Give the field its own
  * bounded glass layer so native input chrome can never turn it white. */
-body[data-ds-theme^='angelina-'] [data-composer-card] :is(
+body[data-dsh-angelina-skin] [data-composer-card] :is(
   input[aria-label='筛选选项'],
   input[aria-label='Filter options']
 ) {
@@ -461,14 +461,14 @@ body[data-ds-theme^='angelina-'] [data-composer-card] :is(
   backdrop-filter: var(--dsh-angelina-glass-menu-filter);
 }
 
-body[data-ds-theme^='angelina-'] [data-composer-card] :is(
+body[data-dsh-angelina-skin] [data-composer-card] :is(
   input[aria-label='筛选选项'],
   input[aria-label='Filter options']
 )::placeholder {
   color: var(--dsh-angelina-glass-menu-muted);
 }
 
-body[data-ds-theme^='angelina-'] [data-composer-card] :is(textarea, [contenteditable='true']) {
+body[data-dsh-angelina-skin] [data-composer-card] :is(textarea, [contenteditable='true']) {
   background: transparent;
   border-color: transparent;
   box-shadow: none;
@@ -476,7 +476,7 @@ body[data-ds-theme^='angelina-'] [data-composer-card] :is(textarea, [contentedit
   backdrop-filter: none;
 }
 
-body[data-ds-theme^='angelina-'] [data-composer-card] select {
+body[data-dsh-angelina-skin] [data-composer-card] select {
   background-color: transparent;
   border-color: transparent;
   box-shadow: none;
@@ -484,17 +484,17 @@ body[data-ds-theme^='angelina-'] [data-composer-card] select {
   backdrop-filter: none;
 }
 
-body[data-ds-theme^='angelina-'] [data-composer-card] textarea {
+body[data-dsh-angelina-skin] [data-composer-card] textarea {
   color: transparent;
   caret-color: var(--dsh-angelina-glass-caret);
 }
 
-body[data-ds-theme^='angelina-'] [data-composer-card] :is(select, [contenteditable='true']) {
+body[data-dsh-angelina-skin] [data-composer-card] :is(select, [contenteditable='true']) {
   color: var(--dsh-angelina-glass-muted);
   caret-color: var(--dsh-angelina-glass-caret);
 }
 
-body[data-ds-theme^='angelina-'] [data-dsh-angelina-parallax] {
+body[data-dsh-angelina-skin] [data-dsh-angelina-parallax] {
   position: fixed;
   z-index: 0;
   inset: 0;
@@ -503,7 +503,7 @@ body[data-ds-theme^='angelina-'] [data-dsh-angelina-parallax] {
   pointer-events: none;
 }
 
-body[data-ds-theme^='angelina-'] [data-dsh-angelina-parallax] > [data-dsh-angelina-layer] {
+body[data-dsh-angelina-skin] [data-dsh-angelina-parallax] > [data-dsh-angelina-layer] {
   position: absolute;
   inset: -16px;
   background-position: var(--dsh-angelina-hero-position);
@@ -513,11 +513,11 @@ body[data-ds-theme^='angelina-'] [data-dsh-angelina-parallax] > [data-dsh-angeli
   will-change: transform;
 }
 
-body[data-ds-theme^='angelina-'] [data-dsh-angelina-parallax] > [data-dsh-angelina-layer='background'] {
+body[data-dsh-angelina-skin] [data-dsh-angelina-parallax] > [data-dsh-angelina-layer='background'] {
   background-image: var(--dsh-angelina-parallax-background-image);
 }
 
-body[data-ds-theme^='angelina-'] [data-dsh-angelina-parallax] > [data-dsh-angelina-layer='foreground'] {
+body[data-dsh-angelina-skin] [data-dsh-angelina-parallax] > [data-dsh-angelina-layer='foreground'] {
   background-image: var(--dsh-angelina-parallax-foreground-image);
 }
 
@@ -650,8 +650,26 @@ body[data-dsh-angelina-parallax] [data-slot='conversation'] > [data-phase='activ
   line-height: 22px;
 }
 
+.dsh-angelina-picker-reset {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+.dsh-angelina-picker-reset:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-primary);
+}
+
 @media (max-width: 900px) {
-  body[data-ds-theme^='angelina-'] {
+  body[data-dsh-angelina-skin] {
     --dsh-angelina-hero-position: 68% 42%;
   }
 
@@ -665,12 +683,12 @@ body[data-dsh-angelina-parallax] [data-slot='conversation'] > [data-phase='activ
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase='active'] [data-conversation-scroll] {
+  body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase='active'] [data-conversation-scroll] {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 
-  body[data-ds-theme^='angelina-'] :is(
+  body[data-dsh-angelina-skin] :is(
     [data-chat-flow-kind='user'] [data-time-hover-root],
     [data-chat-flow-kind='steering'] [data-time-hover-root],
     [data-pending-steering]
@@ -682,7 +700,7 @@ body[data-dsh-angelina-parallax] [data-slot='conversation'] > [data-phase='activ
     backdrop-filter: none;
   }
 
-  body[data-ds-theme^='angelina-'] :is(
+  body[data-dsh-angelina-skin] :is(
     [data-composer-card],
     [role='menu'],
     [role='listbox'],
@@ -699,12 +717,12 @@ body[data-dsh-angelina-parallax] [data-slot='conversation'] > [data-phase='activ
     backdrop-filter: none;
   }
 
-  body[data-ds-theme^='angelina-'] [data-ds-conversation-column] [data-phase='active'] [data-slot='conversation.session.header'] > header {
+  body[data-dsh-angelina-skin] [data-ds-conversation-column] [data-phase='active'] [data-slot='conversation.session.header'] > header {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 
-  body[data-ds-theme^='angelina-'] [data-composer-card] :has(
+  body[data-dsh-angelina-skin] [data-composer-card] :has(
     > input[aria-label='筛选选项'],
     > input[aria-label='Filter options']
   ) {

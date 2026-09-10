@@ -4,9 +4,13 @@ const ROOT_OWNER_ATTRIBUTE = 'data-dsh-angelina-parallax-owner'
 
 type AngelinaMode = 'light' | 'dark'
 
+/**
+ * Accepts both the Host color scheme the skin now rides on (`light`/`dark`) and the
+ * legacy Angelina theme ids, so either call convention resolves to a movement profile.
+ */
 function modeForTheme(themeId: string): AngelinaMode | undefined {
-  if (themeId === 'angelina-light') return 'light'
-  if (themeId === 'angelina-dark') return 'dark'
+  if (themeId === 'light' || themeId === 'angelina-light') return 'light'
+  if (themeId === 'dark' || themeId === 'angelina-dark') return 'dark'
   return undefined
 }
 
