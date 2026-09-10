@@ -85,6 +85,40 @@ describe('AngelinaParallaxController', () => {
     expect(document.body.style.getPropertyValue('--dsh-angelina-copy-parallax-x')).toBe('')
   })
 
+  it('keeps driving the layers when the same scheme is synced repeatedly', () => {
+    // Picking a theme raises `theme/change` and then projects once more, so `sync` runs
+    // twice for one scheme. Treating the second call as "the fork owns these layers"
+    // froze the artwork at the transform it happened to have.
+    const controller = create()
+    controller.sync('angelina-light')
+    controller.sync('angelina-light')
+    controller.sync('angelina-light')
+    pointer(0, 0)
+    flushFrame()
+    expect(document.querySelector('[data-dsh-angelina-layer="background"]')?.getAttribute('style'))
+      .toContain('translate3d(5px, 3px, 0)')
+
+    pointer(window.innerWidth, window.innerHeight)
+    flushFrame()
+    expect(document.querySelector('[data-dsh-angelina-layer="foreground"]')?.getAttribute('style'))
+      .toContain('translate3d(10px, 6px, 0)')
+  })
+
+  it('keeps driving the layers after switching schemes', () => {
+    const controller = create()
+    controller.sync('angelina-light')
+    controller.sync('angelina-dark')
+    controller.sync('angelina-dark')
+    pointer(window.innerWidth, window.innerHeight)
+    flushFrame()
+    expect(document.querySelector('[data-dsh-angelina-layer="foreground"]')?.getAttribute('style'))
+      .toContain('translate3d(8px, 5px, 0)')
+    pointer(0, 0)
+    flushFrame()
+    expect(document.querySelector('[data-dsh-angelina-layer="background"]')?.getAttribute('style'))
+      .toContain('translate3d(4px, 2.4px, 0)')
+  })
+
   it('becomes passive when the fork already owns the layers', () => {
     document.body.setAttribute('data-dsh-angelina-parallax', 'light')
     document.body.innerHTML = `
@@ -100,6 +134,22 @@ describe('AngelinaParallaxController', () => {
     controller.dispose()
     expect(document.getElementById('dsh-angelina-parallax')).toBe(root)
     expect(document.body.getAttribute('data-dsh-angelina-parallax')).toBe('light')
+  })
+
+  it('reclaims a root left behind by an unloaded instance', () => {
+    const previous = create()
+    previous.sync('angelina-light')
+    const stale = document.getElementById('dsh-angelina-parallax')
+    // Simulate an unload that dropped the controller without removing its nodes.
+    previous.dispose()
+    document.body.append(stale as Node)
+
+    const controller = create()
+    controller.sync('angelina-light')
+    pointer(window.innerWidth, window.innerHeight)
+    flushFrame()
+    expect(document.querySelector('[data-dsh-angelina-layer="foreground"]')?.getAttribute('style'))
+      .toContain('translate3d(10px, 6px, 0)')
   })
 
   it('restores its body attribute without changing unrelated body styles', () => {

@@ -2,7 +2,17 @@ const ROOT_ID = 'dsh-angelina-parallax'
 const ROOT_ATTRIBUTE = 'data-dsh-angelina-parallax'
 const ROOT_OWNER_ATTRIBUTE = 'data-dsh-angelina-parallax-owner'
 
+/**
+ * Back-reference to the live controller that built a root, so a second `sync()` for the
+ * same scheme does not mistake this instance's own layers for the fork's and stand down.
+ */
+const ROOT_OWNER_FIELD = '__dshAngelinaParallaxOwner'
+
 type AngelinaMode = 'light' | 'dark'
+
+interface OwnedRoot extends HTMLDivElement {
+  [ROOT_OWNER_FIELD]?: AngelinaParallaxController
+}
 
 /**
  * Accepts both the Host color scheme the skin now rides on (`light`/`dark`) and the
@@ -35,6 +45,8 @@ export class AngelinaParallaxController {
   private previousAttribute: string | null = null
   private reducedMotion: MediaQueryList | undefined
   private reducedMotionListenerAttached = false
+  /** Set once this instance is torn down, so its leftover root can be reclaimed. */
+  private disposed = false
 
   private readonly onPointerMove = (event: PointerEvent): void => {
     if (this.passiveOwner || event.pointerType === 'touch' || this.mode === undefined || this.isReducedMotion()) return
@@ -73,12 +85,36 @@ export class AngelinaParallaxController {
     if (typeof document === 'undefined' || document.body === null) return
 
     const existing = document.getElementById(ROOT_ID)
-    const existingOwner = existing?.getAttribute(ROOT_OWNER_ATTRIBUTE)
-    const existingMode = document.body.getAttribute(ROOT_ATTRIBUTE)
+    const owner = existing instanceof HTMLDivElement ? (existing as OwnedRoot)[ROOT_OWNER_FIELD] : undefined
+
+    // The Host emits on every registry change AND the picker projects once more, so the
+    // same scheme arrives here repeatedly. Re-entering for a root this instance built is
+    // normal: keep the active role instead of mistaking it for the fork's layers.
+    if (existing instanceof HTMLDivElement && owner === this && existing.isConnected) {
+      this.mode = nextMode
+      this.passiveOwner = false
+      this.root = existing
+      this.background = existing.querySelector<HTMLDivElement>('[data-dsh-angelina-layer="background"]') ?? undefined
+      this.foreground = existing.querySelector<HTMLDivElement>('[data-dsh-angelina-layer="foreground"]') ?? undefined
+      document.body.setAttribute(ROOT_ATTRIBUTE, nextMode)
+      this.ensureReducedMotionListener()
+      if (this.isReducedMotion()) {
+        this.detachPointerListeners()
+        this.writeParallax(0, 0, true)
+      } else {
+        this.attachPointerListeners()
+        this.writeParallax(this.targetX, this.targetY, true)
+      }
+      return
+    }
+
+    // A root built by someone else: either the fork's own controller (no back-reference
+    // at all) or a sibling instance still alive. Stay a passive observer so we never add
+    // a second pointer listener or tear down foreign nodes.
     if (
       existing instanceof HTMLDivElement
-      && existingOwner === 'angelina'
-      && existingMode === nextMode
+      && existing.getAttribute(ROOT_OWNER_ATTRIBUTE) === 'angelina'
+      && (owner === undefined || !owner.disposed)
       && existing.querySelector('[data-dsh-angelina-layer="background"]') !== null
     ) {
       this.mode = nextMode
@@ -87,6 +123,12 @@ export class AngelinaParallaxController {
       this.background = existing.querySelector<HTMLDivElement>('[data-dsh-angelina-layer="background"]') ?? undefined
       this.foreground = existing.querySelector<HTMLDivElement>('[data-dsh-angelina-layer="foreground"]') ?? undefined
       return
+    }
+
+    // A root carrying our marker that nobody live owns is a leftover from an unloaded
+    // instance: drop it so this one can take over.
+    if (existing instanceof HTMLDivElement && existing.getAttribute(ROOT_OWNER_ATTRIBUTE) === 'angelina') {
+      existing.remove()
     }
 
     this.captureBodyState()
@@ -106,6 +148,7 @@ export class AngelinaParallaxController {
 
   dispose(): void {
     this.disable()
+    this.disposed = true
     if (this.reducedMotion !== undefined && this.reducedMotionListenerAttached) {
       this.reducedMotion.removeEventListener('change', this.onReducedMotionChange)
       this.reducedMotionListenerAttached = false
@@ -135,6 +178,7 @@ export class AngelinaParallaxController {
     root.setAttribute(ROOT_ATTRIBUTE, 'layers')
     root.setAttribute(ROOT_OWNER_ATTRIBUTE, 'angelina')
     root.setAttribute('aria-hidden', 'true')
+    ;(root as OwnedRoot)[ROOT_OWNER_FIELD] = this
     const background = document.createElement('div')
     background.dataset.dshAngelinaLayer = 'background'
     const foreground = document.createElement('div')
