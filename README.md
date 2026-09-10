@@ -41,6 +41,8 @@ English: [README.en.md](README.en.md)
 
 背景和人物不是一张被整体移动的图片，而是两张透明/不透明图层。指针移动时，远景只做很小幅度位移，人物和信件做更明显的位移；标题、选择器、输入框和正文保持原位，避免阅读时跟着晃动。
 
+亮色和暗色各有一对独立图层，人物层带透明通道，所以两套配色下移动鼠标都能看到人物晃动。
+
 <table>
   <tr>
     <td width="50%"><img src="./src/assets/angelina-light-parallax-background.webp" alt="亮色视差背景层"></td>
@@ -49,6 +51,14 @@ English: [README.en.md](README.en.md)
   <tr>
     <td align="center"><b>Background layer</b><br><sub>城市、天空、屋顶与月光位置</sub></td>
     <td align="center"><b>Foreground layer</b><br><sub>安洁莉娜、信件和前景碎片</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="./src/assets/angelina-dark-parallax-background.webp" alt="暗色视差背景层"></td>
+    <td width="50%"><img src="./src/assets/angelina-dark-parallax-foreground.webp" alt="暗色视差前景人物层"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Background layer（暗色）</b><br><sub>夜景平台、月亮与城市天际线</sub></td>
+    <td align="center"><b>Foreground layer（暗色）</b><br><sub>安洁莉娜、信件与法杖</sub></td>
   </tr>
 </table>
 
@@ -60,7 +70,7 @@ English: [README.en.md](README.en.md)
 | 顶栏、侧栏、菜单、listbox、dialog | 叶节点磨砂玻璃，不给固定定位的祖先 frame 叠加 `backdrop-filter` | 菜单打开时仍保持清晰的边界和阴影 |
 | Composer、输入框、用户消息气泡 | 半透明填充 + 背景模糊 + 轻微饱和度，沿用 Harness 默认形状 | 不改变原生尺寸、键盘行为和按钮布局 |
 | 设置页 | 主题选择行、浅色/深色预览、独立持久化选择 | 卸载插件时恢复宿主主题和 `body` 属性 |
-| 视差层 | 亮色双层；暗色低幅度单层 | `prefers-reduced-motion`、触摸、窄屏、失焦和页面隐藏时停用或复位 |
+| 视差层 | 亮色与暗色各有一对背景/人物图层 | `prefers-reduced-motion`、触摸、窄屏、失焦和页面隐藏时停用或复位 |
 
 <table>
   <tr>
@@ -89,7 +99,7 @@ backdrop-filter: blur(18px) saturate(104%);
 | 模式 | 背景层 | 前景层 | 设计意图 |
 | --- | ---: | ---: | --- |
 | 安洁莉娜亮色 | `-5 / -3` | `10 / 6` | 有明显空间感，但不让内容跟着移动 |
-| 安洁莉娜暗色 | `0.5 / 0.25` | —（未启用前景图） | 夜间使用更稳定，避免高对比背景晃动 |
+| 安洁莉娜暗色 | `-4 / -2.4` | `8 / 5` | 两套配色都有人物位移，暗色略收敛，夜里不抢视线 |
 
 每组两个数依次是 X/Y 位移系数；指针坐标会先按视口归一化到 `-1..1`，数值越大，图层位移越明显。视差容器使用 `pointer-events: none`，不会挡住任何 Harness 控件。
 

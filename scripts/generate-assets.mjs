@@ -11,6 +11,8 @@ const assetFiles = {
   darkHero: 'angelina-dark-hero.webp',
   lightParallaxBackground: 'angelina-light-parallax-background.webp',
   lightParallaxForeground: 'angelina-light-parallax-foreground.webp',
+  darkParallaxBackground: 'angelina-dark-parallax-background.webp',
+  darkParallaxForeground: 'angelina-dark-parallax-foreground.webp',
 }
 
 const assets = {}

@@ -3,6 +3,19 @@ import { ANGELINA_ASSETS } from '../src/client/assets.generated.ts'
 import { ANGELINA_CSS } from '../src/client/style.ts'
 import { ANGELINA_THEMES, ANGELINA_TOKEN_OVERRIDES, buildTokenOverrides } from '../src/themes.ts'
 
+/**
+ * The skin tokens live in a shared light+dark block followed by a scheme-specific
+ * override, so only the *last* occurrence of the exact selector is the one the browser
+ * resolves. Matching the first hit would read the shared defaults instead.
+ */
+function schemeTokens(scheme: string): string {
+  const marker = `body[data-dsh-angelina-skin='${scheme}'] {`
+  const at = ANGELINA_CSS.lastIndexOf(marker)
+  if (at < 0) return ''
+  const open = at + marker.length
+  return ANGELINA_CSS.slice(open, ANGELINA_CSS.indexOf('\n}', open))
+}
+
 describe('theme payload', () => {
   it('ships two complete 114-token definitions', () => {
     expect(ANGELINA_THEMES.map(theme => [theme.id, theme.colorScheme])).toEqual([
@@ -31,9 +44,28 @@ describe('theme payload', () => {
   })
 
   it('embeds every image locally as WebP', () => {
-    expect(Object.keys(ANGELINA_ASSETS)).toHaveLength(4)
+    expect(Object.keys(ANGELINA_ASSETS)).toHaveLength(6)
     for (const value of Object.values(ANGELINA_ASSETS)) {
       expect(value.startsWith('data:image/webp;base64,UklGR')).toBe(true)
+    }
+  })
+
+  it('ships a full parallax pair for both schemes', () => {
+    // A scheme with no foreground layer is a still backdrop: the layers would move,
+    // but the character could not, which is exactly the reported defect for dark.
+    for (const scheme of ['light', 'dark']) {
+      const tokens = schemeTokens(scheme)
+      expect(tokens, scheme).toContain(`--dsh-angelina-parallax-background-image: var(--dsh-angelina-${scheme}-parallax-background)`)
+      expect(tokens, scheme).toContain(`--dsh-angelina-parallax-foreground-image: var(--dsh-angelina-${scheme}-parallax-foreground)`)
+      expect(tokens, scheme).not.toContain('--dsh-angelina-parallax-foreground-image: none')
+    }
+    expect(Object.keys(ANGELINA_ASSETS)).toEqual([
+      'lightHero', 'darkHero',
+      'lightParallaxBackground', 'lightParallaxForeground',
+      'darkParallaxBackground', 'darkParallaxForeground',
+    ])
+    for (const key of ['darkParallaxBackground', 'darkParallaxForeground']) {
+      expect(ANGELINA_ASSETS[key as keyof typeof ANGELINA_ASSETS].length).toBeGreaterThan(1000)
     }
   })
 

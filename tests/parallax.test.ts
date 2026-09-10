@@ -19,6 +19,15 @@ function pointer(clientX: number, clientY: number, pointerType = 'mouse'): void 
 }
 
 describe('AngelinaParallaxController', () => {
+  const live: AngelinaParallaxController[] = []
+
+  /** A failed assertion must not leave listeners behind for the next case. */
+  const create = (): AngelinaParallaxController => {
+    const controller = new AngelinaParallaxController()
+    live.push(controller)
+    return controller
+  }
+
   beforeEach(() => {
     document.body.innerHTML = '<main data-ds-app-frame></main>'
     frames.length = 0
@@ -40,6 +49,7 @@ describe('AngelinaParallaxController', () => {
   })
 
   afterEach(() => {
+    live.splice(0).forEach(controller => { controller.dispose() })
     vi.unstubAllGlobals()
     document.body.innerHTML = ''
     document.body.removeAttribute('data-dsh-angelina-parallax')
@@ -47,7 +57,7 @@ describe('AngelinaParallaxController', () => {
   })
 
   it('matches the Codex light movement amplitudes', () => {
-    const controller = new AngelinaParallaxController()
+    const controller = create()
     controller.sync('angelina-light')
     pointer(window.innerWidth, window.innerHeight)
     flushFrame()
@@ -57,20 +67,22 @@ describe('AngelinaParallaxController', () => {
       .toContain('translate3d(10px, 6px, 0)')
     expect(document.body.style.getPropertyValue('--dsh-angelina-copy-parallax-x')).toBe('')
     expect(document.body.style.getPropertyValue('--dsh-angelina-copy-parallax-y')).toBe('')
-    controller.dispose()
   })
 
-  it('keeps dark movement restrained and ignores touch input', () => {
-    const controller = new AngelinaParallaxController()
+  it('keeps dark movement below the light amplitudes and ignores touch input', () => {
+    const controller = create()
     controller.sync('angelina-dark')
     pointer(window.innerWidth, window.innerHeight, 'touch')
     expect(frames).toHaveLength(0)
     pointer(window.innerWidth, window.innerHeight)
     flushFrame()
+    // Both schemes drive a background and a character layer now, so dark has to move
+    // the character too — just with less travel than light.
     expect(document.querySelector('[data-dsh-angelina-layer="background"]')?.getAttribute('style'))
-      .toContain('translate3d(0.5px, 0.25px, 0)')
+      .toContain('translate3d(-4px, -2.4px, 0)')
+    expect(document.querySelector('[data-dsh-angelina-layer="foreground"]')?.getAttribute('style'))
+      .toContain('translate3d(8px, 5px, 0)')
     expect(document.body.style.getPropertyValue('--dsh-angelina-copy-parallax-x')).toBe('')
-    controller.dispose()
   })
 
   it('becomes passive when the fork already owns the layers', () => {
@@ -81,7 +93,7 @@ describe('AngelinaParallaxController', () => {
         <div data-dsh-angelina-layer="foreground"></div>
       </div>`
     const root = document.getElementById('dsh-angelina-parallax')
-    const controller = new AngelinaParallaxController()
+    const controller = create()
     controller.sync('angelina-light')
     pointer(window.innerWidth, window.innerHeight)
     expect(frames).toHaveLength(0)
@@ -93,7 +105,7 @@ describe('AngelinaParallaxController', () => {
   it('restores its body attribute without changing unrelated body styles', () => {
     document.body.setAttribute('data-dsh-angelina-parallax', 'legacy')
     document.body.style.setProperty('--dsh-angelina-copy-parallax-x', '9px')
-    const controller = new AngelinaParallaxController()
+    const controller = create()
     controller.sync('angelina-light')
     pointer(window.innerWidth, window.innerHeight)
     flushFrame()

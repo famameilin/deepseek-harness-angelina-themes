@@ -192,10 +192,10 @@ export class AngelinaParallaxController {
   private writeParallax(x: number, y: number, force = false): void {
     if (!force && x === this.targetX && y === this.targetY && this.frame !== 0) return
     if (this.passiveOwner || this.root === undefined || this.background === undefined || this.foreground === undefined) return
-    const foregroundX = this.mode === 'light' ? x * 10 : x * 5
-    const foregroundY = this.mode === 'light' ? y * 6 : y * 3
-    const backgroundX = this.mode === 'light' ? x * -5 : x * 0.5
-    const backgroundY = this.mode === 'light' ? y * -3 : y * 0.25
+    const foregroundX = this.mode === 'light' ? x * 10 : x * 8
+    const foregroundY = this.mode === 'light' ? y * 6 : y * 5
+    const backgroundX = this.mode === 'light' ? x * -5 : x * -4
+    const backgroundY = this.mode === 'light' ? y * -3 : y * -2.4
     this.background.style.transform = `translate3d(${px(backgroundX)}, ${px(backgroundY)}, 0)`
     this.foreground.style.transform = `translate3d(${px(foregroundX)}, ${px(foregroundY)}, 0)`
   }

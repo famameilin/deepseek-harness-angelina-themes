@@ -9,6 +9,8 @@ export const ANGELINA_CSS = `
   --dsh-angelina-dark-hero: ${url(ANGELINA_ASSETS.darkHero)};
   --dsh-angelina-light-parallax-background: ${url(ANGELINA_ASSETS.lightParallaxBackground)};
   --dsh-angelina-light-parallax-foreground: ${url(ANGELINA_ASSETS.lightParallaxForeground)};
+  --dsh-angelina-dark-parallax-background: ${url(ANGELINA_ASSETS.darkParallaxBackground)};
+  --dsh-angelina-dark-parallax-foreground: ${url(ANGELINA_ASSETS.darkParallaxForeground)};
 }
 
 body[data-dsh-angelina-skin='light'],
@@ -97,8 +99,8 @@ body[data-dsh-angelina-skin='dark'] {
   --dsh-angelina-chat-secondary: rgba(245, 243, 240, 0.84);
   --dsh-angelina-chat-muted: rgba(245, 243, 240, 0.74);
   --dsh-angelina-chat-caption: rgba(245, 243, 240, 0.68);
-  --dsh-angelina-parallax-background-image: var(--dsh-angelina-dark-hero);
-  --dsh-angelina-parallax-foreground-image: none;
+  --dsh-angelina-parallax-background-image: var(--dsh-angelina-dark-parallax-background);
+  --dsh-angelina-parallax-foreground-image: var(--dsh-angelina-dark-parallax-foreground);
   --dsh-angelina-question-field: rgba(3, 10, 16, 0.72);
   --dsh-angelina-question-field-border: rgba(218, 228, 233, 0.24);
   --dsh-angelina-glass-bubble: color-mix(in srgb, var(--dsw-specific-bubble) 68%, transparent);
