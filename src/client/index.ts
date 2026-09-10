@@ -44,11 +44,15 @@ function hostOwnsAngelinaThemes(ctx: ClientContext): boolean {
 /**
  * The skin itself: one token-override layer stacked over whichever Host theme is active,
  * plus the body attribute the stylesheet scopes on. The Host persists `light`/`dark`/
- * `system` on its own, so nothing here has to write a preference to survive a reload —
- * and toggling is free in both directions because every change republishes the snapshot
- * and the Host's presenter retracts the tokens it wrote for the previous one.
+ * `system` on its own, so nothing here has to write a preference to survive a reload.
+ *
+ * Both transitions publish synchronously from inside the Host call (it re-emits on every
+ * registry change), so `installed` is flipped *before* the call and restored if the call
+ * throws. A re-entrant listener that ran while the handle was still unassigned would see
+ * the skin in the wrong state and project a stale snapshot to the row.
  */
 function createSkin(ctx: ClientContext) {
+  let installed = false
   let remove: (() => void) | undefined
   let presented: string | null = null
 
@@ -63,15 +67,26 @@ function createSkin(ctx: ClientContext) {
 
   return {
     get installed(): boolean {
-      return remove !== undefined
+      return installed
     },
     enable(scheme: AngelinaScheme): void {
-      if (remove === undefined) remove = ctx.theme.overrideTokens(SKIN_SOURCE, ANGELINA_TOKEN_OVERRIDES)
+      if (!installed) {
+        installed = true
+        try {
+          remove = ctx.theme.overrideTokens(SKIN_SOURCE, ANGELINA_TOKEN_OVERRIDES)
+        } catch (error) {
+          installed = false
+          throw error
+        }
+      }
       present(scheme)
     },
+    /** Retraction re-enters synchronously too: clear the flag and the handle first. */
     disable(): void {
-      remove?.()
+      installed = false
+      const dispose = remove
       remove = undefined
+      dispose?.()
       present(undefined)
     },
     present,
@@ -85,10 +100,22 @@ export function apply(ctx: ClientContext): void {
 
   const skin = createSkin(ctx)
   const store = createPickerStore()
+  const parallax = new AngelinaParallaxController()
   let bound: BakedActions<PickerState, ReturnType<typeof createPickerStore>['spec']['actions']> | undefined
 
-  const push = (): void => {
+  /**
+   * Project the current state onto every consumer. Every mutation funnels through here
+   * instead of relying on the Host's re-entrant `theme/change`: a pick that lands on the
+   * preference already in effect emits nothing at all, so an emit-driven design would
+   * silently skip the parallax and the settings row in that case.
+   */
+  const refresh = (): void => {
     const snapshot = ctx.theme.getTheme()
+    if (skin.installed) {
+      skin.present(snapshot.active.colorScheme)
+      alignSelection(snapshot.active.colorScheme)
+    }
+    parallax.sync(skin.installed ? snapshot.active.colorScheme : DEFAULT_SELECTION)
     bound?.sync({
       preference: snapshot.preference,
       scheme: snapshot.active.colorScheme,
@@ -102,35 +129,31 @@ export function apply(ctx: ClientContext): void {
     if (value === DEFAULT_SELECTION) {
       writeSelection(DEFAULT_SELECTION)
       skin.disable()
-      push()
+      refresh()
       return
     }
-    writeSelection(value)
     const scheme = schemeOf(value)
+    writeSelection(value)
     skin.enable(scheme)
     // The Host owns and persists the light/dark axis, so the pick is routed through its
-    // one preference write entry; a no-op guard keeps a redundant write off the wire.
+    // one preference write entry; the guard keeps a redundant write off the wire.
     if (ctx.theme.getTheme().preference !== scheme) ctx.theme.setTheme(scheme)
-    push()
+    refresh()
   }
 
   ctx.effect(() => {
-    const installed = readSkinEnabled()
-    if (installed) skin.enable(ctx.theme.getTheme().active.colorScheme)
+    if (readSkinEnabled()) skin.enable(ctx.theme.getTheme().active.colorScheme)
     else skin.disable()
 
     const offChange = ctx.on('theme/change', payload => {
-      const snapshot = payload as ThemeSnapshot
-      if (skin.installed) {
-        skin.present(snapshot.active.colorScheme)
-        alignSelection(snapshot.active.colorScheme)
-      }
-      push()
+      void payload
+      refresh()
     })
-    push()
+    refresh()
     return () => {
       offChange()
       skin.disable()
+      parallax.dispose()
     }
   }, 'dsh-angelina-themes: skin lifecycle')
 
@@ -141,19 +164,6 @@ export function apply(ctx: ClientContext): void {
 
   ctx.effect(() => installAngelinaStyles(), 'dsh-angelina-themes: glass stylesheet')
 
-  ctx.effect(() => {
-    const parallax = new AngelinaParallaxController()
-    const sync = (snapshot: ThemeSnapshot): void => {
-      parallax.sync(skin.installed ? snapshot.active.colorScheme : DEFAULT_SELECTION)
-    }
-    sync(ctx.theme.getTheme())
-    const off = ctx.on('theme/change', payload => { sync(payload as ThemeSnapshot) })
-    return () => {
-      off()
-      parallax.dispose()
-    }
-  }, 'dsh-angelina-themes: parallax presentation')
-
   ctx.slots.inject('settings.general.item', () => ctx.slots.register({
     name: 'settings.general.item',
     id: 'angelina-themes',
@@ -162,7 +172,7 @@ export function apply(ctx: ClientContext): void {
     locale: SETTINGS_NS,
     inject: (actions: BakedActions<PickerState, ReturnType<typeof createPickerStore>['spec']['actions']>) => {
       bound = actions
-      push()
+      refresh()
       return { select }
     },
   }, ThemePickerRow))

@@ -190,14 +190,56 @@ describe('client plugin', () => {
     apply(harness.ctx)
     const { select } = harness.actions()
 
-    select('system')
-    expect(HOST_LAYERS.size).toBe(0)
-    expect(document.body.getAttribute('data-dsh-angelina-skin')).toBeNull()
-
     select('angelina-dark')
     expect(harness.snapshot().preference).toBe('dark')
     expect(localStorage.getItem(STORAGE_KEY)).toBe('angelina-dark')
     expect(document.body.getAttribute('data-dsh-angelina-skin')).toBe('dark')
+
+    select('system')
+    expect(HOST_LAYERS.size).toBe(0)
+    expect(document.body.getAttribute('data-dsh-angelina-skin')).toBeNull()
+  })
+
+  it('does not resurrect the skin when the retraction re-enters the change listener', () => {
+    // The Host re-publishes synchronously from `overrideTokens`' remover, so the
+    // listener runs while the reset is still in flight. The stored selection must stay
+    // on the off sentinel, and the parallax layers must come down with the skin.
+    const harness = makeContext()
+    apply(harness.ctx)
+    const { select } = harness.actions()
+
+    select('angelina-dark')
+    expect(document.body.getAttribute('data-dsh-angelina-parallax')).toBe('dark')
+
+    select('system')
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('system')
+    expect(HOST_LAYERS.size).toBe(0)
+    expect(document.body.getAttribute('data-dsh-angelina-skin')).toBeNull()
+    expect(document.body.getAttribute('data-dsh-angelina-parallax')).toBeNull()
+
+    // A reload must agree: the off sentinel keeps the skin off.
+    harness.dispose()
+    const reloaded = makeContext()
+    apply(reloaded.ctx)
+    expect(HOST_LAYERS.size).toBe(0)
+    expect(document.body.getAttribute('data-dsh-angelina-skin')).toBeNull()
+  })
+
+  it('updates the row and parallax when a pick matches the preference already in effect', () => {
+    // Skin off, preference already `dark`: installing the layer AND skipping the
+    // Host preference write both happen without emitting `theme/change`, so an
+    // emit-driven projection would leave the row and parallax stale.
+    localStorage.setItem(STORAGE_KEY, 'system')
+    const harness = makeContext({ storedPreference: 'dark' })
+    apply(harness.ctx)
+    expect(HOST_LAYERS.size).toBe(0)
+
+    harness.actions().select('angelina-dark')
+    expect(harness.snapshot().preference).toBe('dark')
+    expect(HOST_LAYERS.get('dsh-angelina-themes')).toBe(ANGELINA_TOKEN_OVERRIDES)
+    expect(document.body.getAttribute('data-dsh-angelina-skin')).toBe('dark')
+    expect(document.body.getAttribute('data-dsh-angelina-parallax')).toBe('dark')
+    expect(harness.store.getSnapshot().enabled).toBe(true)
   })
 
   it('follows the Host scheme while the preference stays on system', () => {
