@@ -64,9 +64,12 @@ describe('theme payload', () => {
       expect(tokens, scheme).toContain('--dsh-angelina-parallax-foreground-image: var(--dsh-angelina-parallax-character)')
       expect(tokens, scheme).not.toContain('--dsh-angelina-parallax-foreground-image: none')
     }
-    // the artwork is anchored identically in both schemes, so the figure cannot slide
-    expect(ANGELINA_CSS).not.toContain('74%')
-    expect(ANGELINA_CSS).toContain('--dsh-angelina-hero-position: 68% 42%')
+    // the artwork is anchored identically in both schemes, so the figure cannot slide:
+    // every hero-position declaration in the sheet must carry the one shared anchor
+    const heroPositions = [...ANGELINA_CSS.matchAll(/--dsh-angelina-hero-position:\s*([^;]+);/g)]
+      .map(match => match[1].trim())
+    expect(new Set(heroPositions)).toEqual(new Set(['68% 42%']))
+    expect(heroPositions.length).toBeGreaterThan(0)
     // each scheme keeps its own backdrop; that is the point of the two palettes
     expect(schemeTokens('light')).toContain('--dsh-angelina-parallax-background-image: var(--dsh-angelina-parallax-background-light)')
     expect(schemeTokens('dark')).toContain('--dsh-angelina-parallax-background-image: var(--dsh-angelina-parallax-background-dark)')
