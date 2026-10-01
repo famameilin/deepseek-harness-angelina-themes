@@ -41,3 +41,5 @@ DSH 宿主只把内建偏好 `light`/`dark`/`system` 写入 `settings.yaml`，�
 ### 桌面版兼容说明
 
 核实桌面版（Electron）与 Web profile 运行同一套 0.2.0-rc.2 运行时与 `dsh-web-app` 前端，客户端模块加载器只按 `dsh.client.platform === "web"` 过滤，本插件无需改动即可在桌面端加载。桌面 profile 由桌面应用独占管理（CLI 操作会被拒绝），安装入口为应用内「插件 → 添加插件」；README 已补充桌面版安装说明。
+
+实际装进桌面版后发现一处视觉回归：Windows 桌面壳给应用根元素标记 `data-windows-titlebar`（配合原生标题栏遮罩），宿主样式据此给布局中列画了不透明的 `--dsw-alias-bg-base` 底色（web 端无此标记、该列为透明）。这一列正好绘制在视差图层之上，把背景与人物完全盖住，表现为「主题色生效但没有任何画作」。修复：皮肤开启时把框架列包裹层置回透明（选择器锚定 `:root[data-windows-titlebar]`，web 端不受影响）。
