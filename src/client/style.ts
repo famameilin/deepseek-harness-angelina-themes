@@ -328,14 +328,28 @@ body[data-dsh-angelina-skin] :where(
   --dsw-alias-bg-module-platform: var(--dsh-angelina-glass-control);
   --dsw-alias-interactive-bg-hover: rgba(245, 243, 240, 0.12);
   --dsw-alias-interactive-bg-hover-solid: rgba(245, 243, 240, 0.16);
+  --dsw-alias-interactive-bg-active: rgba(245, 243, 240, 0.16);
   --dsw-specific-sidebar-nav-item-hover: rgba(245, 243, 240, 0.1);
   --dsw-specific-sidebar-nav-item-active: var(--dsh-angelina-glass-control-selected);
   --dsw-alias-border-l1: rgba(255, 255, 255, 0.14);
   --dsw-alias-border-l2: rgba(255, 255, 255, 0.2);
   --dsw-alias-border-l3: rgba(255, 255, 255, 0.28);
+  --dsw-alias-border-l4: rgba(255, 255, 255, 0.24);
   --dsw-alias-fill-tsp-secondary: rgba(245, 243, 240, 0.12);
   --dsw-alias-label-quaternary: var(--dsh-angelina-glass-muted);
   --dsw-alias-label-dimmed: var(--dsh-angelina-glass-muted);
+  /* The host declares these derived aliases on the body element, so their var()
+   * references resolve against the body scope and inherit past the dialog
+   * overrides above. Settings cards, onboarding cards and major inputs would
+   * stay light-on-light, so the derived aliases must be re-declared here to
+   * reach the dark surfaces. */
+  --dsw-alias-settings-card-fill: var(--dsh-angelina-glass-control);
+  --dsw-alias-settings-card-stroke: rgba(255, 255, 255, 0.16);
+  --dsw-alias-onboarding-card-fill: var(--dsh-angelina-glass-control);
+  --dsw-alias-onboarding-secondary-fill: var(--dsh-angelina-glass-control);
+  --dsw-alias-onboarding-checkbox-border: rgba(255, 255, 255, 0.2);
+  --dsw-specific-input-major: var(--dsh-angelina-glass-input);
+  --dsw-alias-bg-skeleton: rgba(245, 243, 240, 0.1);
 }
 
 body[data-dsh-angelina-skin] [data-composer-card] {

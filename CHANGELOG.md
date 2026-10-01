@@ -34,6 +34,14 @@ DSH 宿主只把内建偏好 `light`/`dark`/`system` 写入 `settings.yaml`，�
 
 涉及文件：`src/client/style.ts`、`tests/themes.test.ts`。
 
+### 设置弹窗内层卡片可读性（间接别名 token 修复）
+
+设置弹窗（账号与余额、内置插件、Agent 预设、模型）里的内层卡片是浅色底，而弹窗 token 层把文字提到浅玻璃色，出现"白字白底"。根因是 CSS 变量作用域：宿主在 `body` 上声明 `--dsw-alias-settings-card-fill: var(--dsw-alias-bg-layer-2)` 这类**间接别名**，var() 在声明处（body）求值，弹窗元素上覆盖 `--dsw-alias-bg-layer-2` 传不进去，卡片仍然拿到浅色值。
+
+修复是在弹窗作用域内把这些间接别名一并重新声明为深色玻璃面：`--dsw-alias-settings-card-fill/stroke`、`--dsw-alias-onboarding-card-fill/secondary-fill/checkbox-border`、`--dsw-specific-input-major`（模型页输入行）、`--dsw-alias-bg-skeleton`，另补 `--dsw-alias-border-l4` 与 `--dsw-alias-interactive-bg-active`。纯 token 映射，不新增任何 `backdrop-filter`。
+
+涉及文件：`src/client/style.ts`。
+
 ### 插件介绍中文化
 
 `package.json` 的 `description` 改为中文（「为 DeepSeek Harness 打造的安洁莉娜亮色与暗色磨砂玻璃主题，附带克制的视差背景。」），插件管理页的卡片与详情随之显示中文介绍。
