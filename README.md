@@ -56,6 +56,7 @@ English: [README.en.md](README.en.md)
 | 顶栏、侧栏、菜单、listbox、dialog | 叶节点磨砂玻璃，不给固定定位的祖先 frame 叠加 `backdrop-filter` | 菜单打开时仍保持清晰的边界和阴影 |
 | Composer、输入框、用户消息气泡 | 半透明填充 + 背景模糊 + 轻微饱和度，沿用 Harness 默认形状 | 不改变原生尺寸、键盘行为和按钮布局 |
 | 设置页 | 主题选择行、浅色/深色预览、独立持久化选择 | 卸载插件时恢复宿主主题和 `body` 属性 |
+| 插件管理、自动化任务等整页面板 | 内容区垫近不透明的同色系页面底色，三级/四级灰字提到二级灰 | 纯背景绘制：无 `backdrop-filter`、无新增面板，控件行为不变 |
 | 视差层 | 亮暗共用一张人物图与一个锚点，暗色仅调色；人物按视口高度定尺寸挂在右下角，不随背景 `cover` 放大 | `prefers-reduced-motion`、触摸、窄屏、失焦和页面隐藏时停用或复位 |
 
 <table>
@@ -79,6 +80,17 @@ backdrop-filter: blur(18px) saturate(104%);
 ```
 
 实际应用范围遵循叶节点策略：只给可见的菜单、卡片、输入框和气泡加玻璃，不给 sidebar/frame 祖先加滤镜，因此不会破坏固定定位浮层、滚动容器或对话层级。活跃对话区域使用浅层 `3px` 背景模糊，内部文字和控件保持锐利。
+
+### 整页面板底色
+
+插件管理、自动化任务这类整页面板没有叶子玻璃面可用，内容直接压在画作上，三级灰字会被背景吞掉。主题给这些面板（`section[data-plugin-panel]`、`[data-testid='task-manager-page']`）垫一层近不透明的同色系底色，并把面板内的三级/四级灰字提到二级灰：
+
+```css
+/* 亮色；暗色为 rgb(8 13 19 / 90% → 86% → 78%) */
+--dsh-angelina-page-wash: linear-gradient(90deg, rgb(235 232 227 / 92%) 0%, rgb(235 232 227 / 86%) 52%, rgb(235 232 227 / 74%) 100%);
+```
+
+刻意不用磨砂玻璃：整页面积上叠 `backdrop-filter` 又糊又重，可读性交给纯绘制底色，磨砂只留给叶节点浮层。视差开启时面板只画 wash 加 scrim——背景由 `body` 下的固定视差图层负责，面板内不再绘制 hero 图，避免两套画面错位。
 
 ### 视差参数
 
@@ -135,12 +147,17 @@ dsh plugin --profile web add .
 
 修改 `src/` 后重新运行 `pnpm build`，然后重启 DSH Web profile。当前仓库的 `lib/` 已可直接安装，普通用户不需要执行构建步骤。
 
+### 桌面版（Electron 应用）
+
+桌面 profile 由 DeepSeek Harness 桌面应用独占管理，命令行执行 `dsh plugin --profile desktop …` 会报 `managed exclusively by the Electron application`。安装入口在应用内：**插件 → 添加插件**，填入上面 GitHub 安装的同一地址（或本地 checkout 的绝对路径），完成后重启桌面应用。桌面应用自带 Node 与 pnpm，不依赖系统全局安装；桌面端与 Web 端运行同一套前端，主题行为一致。主题选择保存在各自的 WebView 本地存储中，桌面版首次启用默认跟随系统亮/暗。
+
 ## 与 Harness 的兼容策略
 
 - 上游 Harness `0.1.0-rc.6` 只投影活动主题的配色模式和 token，不投影第三方 CSS 选择器需要的主题 id；插件会同步 `body[data-ds-theme]`，卸载时恢复原值。
 - `feature/angelina-themes` fork 已经内置主题时，插件先读取 `ctx.theme.getTheme().themes`，复用已有 id，只注册缺失项，避免重复 id。
 - fork 如果已经创建 `#dsh-angelina-parallax` 和 `body[data-dsh-angelina-parallax]`，插件不会再创建第二套视差层或指针监听。
 - 插件可以和 `dsh-motion`、`dsh-conversation-minimap` 一起安装；主题只负责视觉层，不接管动画插件或会话数据。
+- 桌面版（Electron）与 Web profile 运行同一套运行时和 `dsh-web-app` 前端；客户端模块加载器只按 `dsh.client.platform === "web"` 过滤（共享代码，无桌面特例），插件在两端同等加载。
 
 ## 构建、测试与审计
 

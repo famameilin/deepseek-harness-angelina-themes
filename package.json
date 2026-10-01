@@ -1,7 +1,7 @@
 {
   "name": "dsh-angelina-themes",
   "version": "0.1.0",
-  "description": "Angelina light and dark glass themes with restrained parallax for DeepSeek Harness",
+  "description": "为 DeepSeek Harness 打造的安洁莉娜亮色与暗色磨砂玻璃主题，附带克制的视差背景。",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

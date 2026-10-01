@@ -56,6 +56,7 @@ The character carries her own scale rather than inheriting the backdrop's `cover
 | Header, sidebar, menus, listboxes, dialogs | Leaf-node frosted glass instead of filtering fixed-position ancestors | Open overlays keep their own edge and shadow |
 | Composer, inputs, user bubbles | Translucent fill, backdrop blur, and a small saturation lift | Harness shape, sizing, keyboard behavior, and button layout stay intact |
 | Settings | Dedicated Angelina picker with light/dark previews and durable browser-local selection | Unload restores the host theme and body attributes |
+| Full-page panels (plugin manager, automation tasks) | A near-opaque, palette-matched page wash under the content; tertiary/quaternary labels lifted to secondary | Pure background paint: no `backdrop-filter`, no added panels, control behavior unchanged |
 | Motion | Two-layer parallax with one shared character layer; dark regrades the same image | Reduced motion, touch, narrow viewports, blur, and hidden pages disable or reset motion |
 
 <table>
@@ -79,6 +80,17 @@ backdrop-filter: blur(18px) saturate(104%);
 ```
 
 Glass is applied only to visible leaf surfaces. Sidebar/frame ancestors are left untouched so fixed overlays, scroll containers, and conversation layers keep their positioning. Active conversation content uses a shallow `3px` backdrop blur while its text and controls remain sharp.
+
+### Full-page panel wash
+
+Full-page panels such as the plugin manager and automation tasks have no leaf glass surface; their copy sits straight on the artwork and tertiary labels drown in it. The theme paints a near-opaque, palette-matched wash under those panels (`section[data-plugin-panel]`, `[data-testid='task-manager-page']`) and lifts their tertiary/quaternary labels to secondary:
+
+```css
+/* light; dark is rgb(8 13 19 / 90% → 86% → 78%) */
+--dsh-angelina-page-wash: linear-gradient(90deg, rgb(235 232 227 / 92%) 0%, rgb(235 232 227 / 86%) 52%, rgb(235 232 227 / 74%) 100%);
+```
+
+Deliberately no glass here: a page-sized `backdrop-filter` reads as heavy and blurry. Readability comes from plain paint, and frosted glass stays on leaf overlays. With parallax active, panels paint only the wash and scrim — the backdrop belongs to the fixed layers below `body`, so no second hero painting drifts out of alignment.
 
 ### Motion contract
 
@@ -133,12 +145,17 @@ dsh plugin --profile web add .
 
 After editing `src/`, run `pnpm build` again and restart DSH. End users can install the committed `lib/` directly without building.
 
+### Desktop app (Electron)
+
+The desktop profile is owned exclusively by the DeepSeek Harness desktop app; running `dsh plugin --profile desktop …` answers with `managed exclusively by the Electron application`. Install from inside the app: **Plugins > Add plugin**, enter the same GitHub source as above (or the absolute path of a local checkout), then restart the app. The desktop app ships its own Node and pnpm, so nothing global is required. Desktop and Web run the same frontend, and the theme behaves identically. The theme pick lives in each WebView's local storage; on first enable the desktop app follows the system light/dark preference.
+
 ## Harness compatibility
 
 - Published Harness `0.1.0-rc.6` projects active color mode and tokens but not the theme id needed by third-party selectors. The plugin synchronizes `body[data-ds-theme]` and restores its previous value on unload.
 - The `feature/angelina-themes` fork already owns both theme ids. The plugin reuses existing definitions and registers only missing ids, avoiding duplicate-id failures.
 - If the fork already owns `#dsh-angelina-parallax` and `body[data-dsh-angelina-parallax]`, the plugin does not add another layer stack or pointer listener.
 - It can be installed alongside `dsh-motion` and `dsh-conversation-minimap`; this package owns the visual layer and does not take over motion-plugin or conversation data behavior.
+- The desktop (Electron) app and the Web profile share one runtime and the same `dsh-web-app` frontend; the client module loader filters only on `dsh.client.platform === "web"` (shared code, no desktop special case), so the plugin loads identically on both.
 
 ## Build, test, and audit
 

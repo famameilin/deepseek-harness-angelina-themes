@@ -25,3 +25,19 @@ DSH 宿主只把内建偏好 `light`/`dark`/`system` 写入 `settings.yaml`，�
 - 两套配色共用同一张人物图、同一个锚点，暗色仅施加 `brightness(0.62) saturate(0.92)` 调色。此前亮暗各用独立人物图，切换配色时人物位置与宽度都会变化。
 - 人物层不再沿用背景的 `cover`，改为按视口高度定尺寸并锚在右下角（`auto 88vh` + `right 40px bottom 0`），占屏比例在任意窗口宽高比下保持一致。
 - 修复同一配色重复 `sync()` 被误判为被动模式、导致位移停写的问题（根上挂 owner 回指识别自有图层）。
+
+### 整页面板可读性（页面底色，不加玻璃层）
+
+插件管理、自动化任务等整页面板的内容直接压在背景画作上，三级灰字几乎不可读。主题现在给 `section[data-plugin-panel]` 与 `[data-testid='task-manager-page']` 垫近不透明的同色系 wash（亮色 `rgb(235 232 227 / 92% → 86% → 74%)`，暗色 `rgb(8 13 19 / 90% → 86% → 78%)` 横向渐变），并把面板内三级/四级灰字提到二级灰。
+
+全程纯背景绘制，不引入 `backdrop-filter`：整页面积的磨砂又糊又重，可读性交给纯色底，磨砂只留给叶节点浮层。视差开启时面板只画 wash + scrim，不再重复绘制 hero 图，避免与 `body` 下的固定视差图层错位。原「CSS 不含 `74%`」的人物锚点回归防护与新增透明度数值冲突，已改为精确断言：样式表中所有 `--dsh-angelina-hero-position` 声明必须为同一锚点。
+
+涉及文件：`src/client/style.ts`、`tests/themes.test.ts`。
+
+### 插件介绍中文化
+
+`package.json` 的 `description` 改为中文（「为 DeepSeek Harness 打造的安洁莉娜亮色与暗色磨砂玻璃主题，附带克制的视差背景。」），插件管理页的卡片与详情随之显示中文介绍。
+
+### 桌面版兼容说明
+
+核实桌面版（Electron）与 Web profile 运行同一套 0.2.0-rc.2 运行时与 `dsh-web-app` 前端，客户端模块加载器只按 `dsh.client.platform === "web"` 过滤，本插件无需改动即可在桌面端加载。桌面 profile 由桌面应用独占管理（CLI 操作会被拒绝），安装入口为应用内「插件 → 添加插件」；README 已补充桌面版安装说明。
